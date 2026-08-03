@@ -1,6 +1,6 @@
 # 📘 Terraform Handbook
 
-> Living handbook for Terraform, GCP, Ansible, Kubernetes, and DevOps interview prep.
+> Living handbook for DevOps interview prep.
 > 
 > **Focus:** EPAM LevelUp A2 → A3 + enterprise project interviews
 
