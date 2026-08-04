@@ -6,6 +6,8 @@
 
 ---
 
+'Good youtube questions link': [Terraform_Interview_Questions](https://youtu.be/pCoCynze4Ag?si=KSZPYC5Vr91Ddkpz)
+
 ## Chapter 1 — Foundations & Ownership
 
 ### 🟢 Scenario 1
