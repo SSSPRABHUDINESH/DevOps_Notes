@@ -8,25 +8,25 @@
 ## 1. Basic GCP Networking Flow
 
 ```text
-Application
-  │
-  ▼
-NIC
-  │
-  ▼
-Subnet
-  │
-  ▼
-VPC
-  │
-  ▼
-Route Lookup
-  │
-  ▼
-Firewall Evaluation
-  │
-  ▼
-Destination
+                    Application
+                          │
+                          ▼
+                         NIC
+                          │
+                          ▼
+                       Subnet
+                          │
+                          ▼
+                         VPC
+                          │
+                          ▼
+                   Route Lookup
+                          │
+                          ▼
+                Firewall Evaluation
+                          │
+                          ▼
+                     Destination
 ```
 
 ### Key architecture points
@@ -39,19 +39,19 @@ Destination
 ## 2. VPC and Subnet Layout
 
 ```text
-Global VPC
-├── Mumbai Region
-│   ├── Web Subnet
-│   ├── App Subnet
-│   └── DB Subnet
-├── Singapore Region
-│   ├── Web Subnet
-│   ├── App Subnet
-│   └── DB Subnet
-└── Tokyo Region
-    ├── Web Subnet
-    ├── App Subnet
-    └── DB Subnet
+                         Global VPC
+            ┌───────────────┼───────────────┐
+            ▼               ▼               ▼
+      Mumbai Region   Singapore Region   Tokyo Region
+            │               │               │
+            ▼               ▼               ▼
+        Web Subnet      Web Subnet      Web Subnet
+            │               │               │
+            ▼               ▼               ▼
+        App Subnet      App Subnet      App Subnet
+            │               │               │
+            ▼               ▼               ▼
+         DB Subnet       DB Subnet       DB Subnet
 ```
 
 ### Key architecture points
@@ -64,14 +64,15 @@ Global VPC
 ## 3. Firewall Targeting Architecture
 
 ```text
-Firewall Rule
-  │
-  ├── source_ranges
-  ├── target_tags
-  └── target_service_accounts
-       │
-       ▼
-      VM
+                    Firewall Rule
+           ┌──────────────┼──────────────┐
+           │              │              │
+           ▼              ▼              ▼
+    source_ranges     target_tags  target_service_accounts
+           │              │              │
+           └──────────────┼──────────────┘
+                          ▼
+                          VM
 ```
 
 ### Example targeting patterns
@@ -92,15 +93,17 @@ DB service account -> PostgreSQL firewall rule
 ## 4. Route Decision Path
 
 ```text
-Packet Destination
-  │
-  ▼
-Most Specific Match
-  │
-  ├── Local Route
-  ├── Custom Route
-  ├── VPN Route
-  └── Default Route 0.0.0.0/0
+                     Packet Destination
+                              │
+                              ▼
+                    Most Specific Match
+             ┌────────────────┼────────────────┐
+             │                │                │
+             ▼                ▼                ▼
+        Local Route      Custom Route      VPN Route
+                              │
+                              ▼
+                    Default Route 0.0.0.0/0
 ```
 
 ### Key architecture points
@@ -113,22 +116,22 @@ Most Specific Match
 ## 5. Cloud Router Hybrid Connectivity
 
 ```text
-On-Prem Router
-  │
-  ▼
-BGP Session
-  │
-  ▼
-Cloud VPN or Cloud Interconnect
-  │
-  ▼
-Cloud Router
-  │
-  ▼
-VPC Route Table
-  │
-  ▼
-GCP Resources
+                    On-Prem Router
+                           │
+                           ▼
+                       BGP Session
+                           │
+                           ▼
+              Cloud VPN or Cloud Interconnect
+                           │
+                           ▼
+                       Cloud Router
+                           │
+                           ▼
+                    VPC Route Table
+                           │
+                           ▼
+                     GCP Resources
 ```
 
 ### Key architecture points
@@ -140,29 +143,31 @@ GCP Resources
 
 ## 6. Cloud NAT Outbound Flow
 
+### Outbound request
+
 ```text
-Private VM
-  │
-  ▼
-Private Subnet
-  │
-  ▼
-Cloud NAT
-  │
-  ▼
-Public Internet
+                    Private VM
+                          │
+                          ▼
+                    Private Subnet
+                          │
+                          ▼
+                       Cloud NAT
+                          │
+                          ▼
+                   Public Internet
 ```
 
 ### Response flow
 
 ```text
-Public Internet
-  │
-  ▼
-Cloud NAT
-  │
-  ▼
-Private VM
+                   Public Internet
+                          │
+                          ▼
+                       Cloud NAT
+                          │
+                          ▼
+                    Private VM
 ```
 
 ### Key architecture points
@@ -178,28 +183,28 @@ Private VM
 ### External HTTP(S) Load Balancer for inbound traffic
 
 ```text
-Internet User
-  │
-  ▼
-External Load Balancer (Static Public IP)
-  │
-  ▼
-Backend Service
-  │
-  ▼
-Private Web VMs
+                    Internet User
+                          │
+                          ▼
+             External Load Balancer (Static Public IP)
+                          │
+                          ▼
+                   Backend Service
+                          │
+                          ▼
+                    Private Web VMs
 ```
 
 ### Cloud NAT for outbound traffic
 
 ```text
-Private Web VM
-  │
-  ▼
-Cloud NAT
-  │
-  ▼
-Internet
+                    Private Web VM
+                          │
+                          ▼
+                        Cloud NAT
+                          │
+                          ▼
+                    Private Internet Access
 ```
 
 ### Key architecture points
@@ -212,19 +217,19 @@ Internet
 ## 8. Cloud VPN Architecture
 
 ```text
-On-Prem Network
-  │
-  ▼
-IPSec Tunnel
-  │
-  ▼
-Cloud VPN Gateway
-  │
-  ▼
-Cloud Router
-  │
-  ▼
-GCP VPC
+                    On-Prem Network
+                          │
+                          ▼
+                       IPSec Tunnel
+                          │
+                          ▼
+                    Cloud VPN Gateway
+                          │
+                          ▼
+                       Cloud Router
+                          │
+                          ▼
+                          VPC
 ```
 
 ### Key architecture points
@@ -237,16 +242,17 @@ GCP VPC
 ## 9. HA VPN Architecture
 
 ```text
-On-Prem Router
-   ║          ║
-Tunnel 1    Tunnel 2
-   ║          ║
-   ║          ║
-HA VPN Gateway
-   ║          ║
-Cloud Router (BGP)
-   ║
-GCP VPC
+                    On-Prem Router
+                   ║              ║
+                Tunnel 1       Tunnel 2
+                   ║              ║
+                   ║              ║
+                HA VPN Gateway
+                   ║              ║
+              Cloud Router (BGP)
+                   ║
+                   ▼
+                  VPC
 ```
 
 ### Key architecture points
@@ -259,19 +265,19 @@ GCP VPC
 ## 10. Cloud Interconnect Architecture
 
 ```text
-On-Prem Data Center
-  │
-  ▼
-Dedicated or Partner Connectivity
-  │
-  ▼
-Google Edge / Interconnect
-  │
-  ▼
-Cloud Router
-  │
-  ▼
-GCP VPC
+                  On-Prem Data Center
+                          │
+                          ▼
+              Dedicated or Partner Connectivity
+                          │
+                          ▼
+                  Google Edge / Interconnect
+                          │
+                          ▼
+                     Cloud Router
+                          │
+                          ▼
+                          VPC
 ```
 
 ### Key architecture points
@@ -284,13 +290,13 @@ GCP VPC
 ## 11. VPC Peering Architecture
 
 ```text
-VPC A
-  │
-  ▼
-VPC Peering
-  │
-  ▼
-VPC B
+                         VPC A
+                           │
+                           ▼
+                      VPC Peering
+                           │
+                           ▼
+                         VPC B
 ```
 
 ### Key architecture points
@@ -305,31 +311,31 @@ VPC B
 ### Consumer side
 
 ```text
-Consumer VM
-  │
-  ▼
-PSC Endpoint
-  │
-  ▼
-Private Service Connect
-  │
-  ▼
-Producer Service
+                      Consumer VM
+                           │
+                           ▼
+                     PSC Endpoint
+                           │
+                           ▼
+                Private Service Connect
+                           │
+                           ▼
+                    Producer Service
 ```
 
 ### Producer side
 
 ```text
-Producer VPC
-  │
-  ▼
-Internal Load Balancer
-  │
-  ▼
-Service Attachment
-  │
-  ▼
-Consumer Endpoint
+                      Producer VPC
+                           │
+                           ▼
+                  Internal Load Balancer
+                           │
+                           ▼
+                    Service Attachment
+                           │
+                           ▼
+                    Consumer Endpoint
 ```
 
 ### Key architecture points
@@ -343,63 +349,65 @@ Consumer Endpoint
 ## 13. VPC Service Controls Architecture
 
 ```text
-Trusted Perimeter
-+--------------------------------------+
-| Project A                            |
-| Project B                            |
-| Cloud Storage                        |
-| BigQuery                             |
-| Secret Manager                       |
-+--------------------------------------+
+                     Trusted Perimeter
+        ┌──────────────────────────────────────┐
+        │               Project A              │
+        │               Project B              │
+        │           Cloud Storage              │
+        │              BigQuery                │
+        │            Secret Manager            │
+        └──────────────────────────────────────┘
 ```
 
 ### Request path
 
 ```text
-User / Workload
-  │
-  ▼
-IAM Check
-  │
-  ▼
-VPC SC Perimeter Check
-  │
-  ├── Allowed inside perimeter
-  └── Denied if outside perimeter
+                    User / Workload
+                          │
+                          ▼
+                        IAM Check
+                          │
+                          ▼
+                 VPC SC Perimeter Check
+                          │
+                  ┌───────┴────────┐
+                  │                │
+                  ▼                ▼
+      Allowed inside perimeter   Denied if outside
 ```
 
 ### Key architecture points
 - Protects data from leaving trusted boundaries.
 - Works at service perimeter level.
-- Complements IAM and firewall, not replace them.
+- Complements IAM and firewall, does not replace them.
 
 ---
 
 ## 14. Load Balancer Request Lifecycle
 
 ```text
-DNS
-  │
-  ▼
-Forwarding Rule
-  │
-  ▼
-Target Proxy
-  │
-  ▼
-URL Map
-  │
-  ▼
-Backend Service
-  │
-  ▼
-Health Check
-  │
-  ▼
-Managed Instance Group
-  │
-  ▼
-VM
+                           DNS
+                            │
+                            ▼
+                    Forwarding Rule
+                            │
+                            ▼
+                      Target Proxy
+                            │
+                            ▼
+                         URL Map
+                            │
+                            ▼
+                     Backend Service
+                            │
+                            ▼
+                      Health Check
+                            │
+                            ▼
+               Managed Instance Group
+                            │
+                            ▼
+                              VM
 ```
 
 ### Key architecture points
@@ -416,37 +424,37 @@ VM
 ### Layer 4
 
 ```text
-Client
-  │
-  ▼
-IP / TCP / UDP
-  │
-  ▼
-Backend
+                         Client
+                           │
+                           ▼
+                     IP / TCP / UDP
+                           │
+                           ▼
+                        Backend
 ```
 
 ### Layer 7
 
 ```text
-Client
-  │
-  ▼
-HTTP / HTTPS
-  │
-  ▼
-Forwarding Rule
-  │
-  ▼
-Target Proxy
-  │
-  ▼
-URL Map
-  │
-  ▼
-Backend Service
-  │
-  ▼
-Backend
+                         Client
+                           │
+                           ▼
+                    HTTP / HTTPS
+                           │
+                           ▼
+                    Forwarding Rule
+                           │
+                           ▼
+                      Target Proxy
+                           │
+                           ▼
+                         URL Map
+                           │
+                           ▼
+                     Backend Service
+                           │
+                           ▼
+                        Backend
 ```
 
 ### Key architecture points
@@ -460,25 +468,27 @@ Backend
 ## 16. Health Check + Backend Service + MIG Flow
 
 ```text
-Client
-  │
-  ▼
-Load Balancer
-  │
-  ▼
-Backend Service
-  │
-  ▼
-Health Check
-  │
-  ├── Healthy -> send traffic
-  └── Unhealthy -> skip backend
-  │
-  ▼
-Managed Instance Group
-  │
-  ▼
-Replace / scale / heal VM
+                          Client
+                            │
+                            ▼
+                      Load Balancer
+                            │
+                            ▼
+                      Backend Service
+                            │
+                            ▼
+                       Health Check
+                            │
+                 ┌──────────┴──────────┐
+                 │                     │
+                 ▼                     ▼
+      Healthy -> send traffic   Unhealthy -> skip backend
+                            │
+                            ▼
+               Managed Instance Group
+                            │
+                            ▼
+                 Replace / scale / heal VM
 ```
 
 ### Key architecture points
@@ -494,13 +504,25 @@ Replace / scale / heal VM
 ### Global
 
 ```text
-User -> Global Load Balancer -> Closest healthy region
+                         User
+                          │
+                          ▼
+                Global Load Balancer
+                          │
+                          ▼
+               Closest healthy region
 ```
 
 ### Regional
 
 ```text
-User -> Regional Load Balancer -> Region-local backends
+                         User
+                          │
+                          ▼
+               Regional Load Balancer
+                          │
+                          ▼
+                   Region-local backends
 ```
 
 ### Key architecture points
@@ -513,19 +535,19 @@ User -> Regional Load Balancer -> Region-local backends
 ## 18. Cloud Armor Security Placement
 
 ```text
-Internet
-  │
-  ▼
-Cloud Armor
-  │
-  ▼
-Load Balancer
-  │
-  ▼
-Backend Service
-  │
-  ▼
-Private VMs
+                        Internet
+                           │
+                           ▼
+                      Cloud Armor
+                           │
+                           ▼
+                     Load Balancer
+                           │
+                           ▼
+                    Backend Service
+                           │
+                           ▼
+                       Private VMs
 ```
 
 ### Key architecture points
@@ -538,31 +560,31 @@ Private VMs
 ## 19. Consolidated Enterprise Edge Architecture
 
 ```text
-Internet
-  │
-  ▼
-Cloud Armor
-  │
-  ▼
-External Load Balancer
-  │
-  ▼
-Backend Service
-  │
-  ▼
-Health Check
-  │
-  ▼
-Managed Instance Group
-  │
-  ▼
-Private Web VMs
-  │
-  ▼
-Cloud NAT
-  │
-  ▼
-Internet
+                        Internet
+                           │
+                           ▼
+                      Cloud Armor
+                           │
+                           ▼
+                 External Load Balancer
+                           │
+                           ▼
+                     Backend Service
+                           │
+                           ▼
+                       Health Check
+                           │
+                           ▼
+               Managed Instance Group
+                           │
+                           ▼
+                    Private Web VMs
+                           │
+                           ▼
+                        Cloud NAT
+                           │
+                           ▼
+                         Internet
 ```
 
 ### Key architecture points
@@ -576,25 +598,25 @@ Internet
 ## 20. Secure Data Boundary Architecture
 
 ```text
-External Users
-  │
-  ▼
-Cloud Armor
-  │
-  ▼
-Load Balancer / Web Tier
-  │
-  ▼
-IAM Controlled Apps
-  │
-  ▼
-Google Managed Services
-  │
-  ▼
-VPC Service Controls Perimeter
-  │
-  ▼
-No unauthorized data egress
+                     External Users
+                          │
+                          ▼
+                      Cloud Armor
+                          │
+                          ▼
+                   Load Balancer / Web Tier
+                          │
+                          ▼
+                     IAM Controlled Apps
+                          │
+                          ▼
+               Google Managed Services
+                          │
+                          ▼
+               VPC Service Controls Perimeter
+                          │
+                          ▼
+              No unauthorized data egress
 ```
 
 ### Key architecture points
