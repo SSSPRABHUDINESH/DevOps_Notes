@@ -1,7 +1,7 @@
 # GCP Networking Architectures
 
-> This file contains networking architecture diagrams and flow summaries only.
-> It intentionally avoids concept explanations and focuses on end-to-end designs.
+> Text-based networking architecture diagrams and flow summaries.
+> This file focuses on structural logic, request paths, and component interactions.
 
 ---
 
