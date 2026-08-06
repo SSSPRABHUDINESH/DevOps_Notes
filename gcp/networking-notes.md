@@ -307,6 +307,13 @@ Allow TCP 22 from office IPs only
 Packet -> route decision -> firewall decision -> destination
 ```
 
+### Default firewall rules for default VPC
+When configured by the default vpc, 4 specific ingress firewall rules are pre populated.
+1. `default-allow-internal`: Allows incoming TCP (0-65535), UDP (0-65535), and ICMP traffic from any instance inside the same VPC network (10.128.0.0/9 range).
+2. `default-allow-ssh`: Allows incoming TCP traffic on port 22 (SSH) from any source IP (0.0.0.0/0).
+3. `default-allow-rdp`: Allows incoming TCP traffic on port 3389 (RDP) from any source IP (0.0.0.0/0).
+4. `default-allow-icmp`: Allows incoming ICMP traffic (ping) from any source IP (0.0.0.0/0)
+
 ### Important points
 - Firewall is attached to the VPC, not to individual VMs.
 - Firewall is stateful.
