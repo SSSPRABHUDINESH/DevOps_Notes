@@ -930,7 +930,7 @@ Know where to look in the console and how to explain configuration ownership.
 | Cloud Armor | Security | Web application protection |
 | VPC / Subnets / Routes / NAT / VPN | Networking | Packet movement and connectivity |
 
-Configuring Private Service Connect (PSC) in the GCP Console depends on whether you are **publishing a service** (Producer) or **connecting to a service / Google API** (Consumer).
+## Configuring Private Service Connect (PSC) in the GCP Console depends on whether you are **publishing a service** (Producer) or **connecting to a service / Google API** (Consumer).
 
 ---
 
