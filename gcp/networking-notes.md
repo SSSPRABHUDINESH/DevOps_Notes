@@ -930,6 +930,51 @@ Know where to look in the console and how to explain configuration ownership.
 | Cloud Armor | Security | Web application protection |
 | VPC / Subnets / Routes / NAT / VPN | Networking | Packet movement and connectivity |
 
+Configuring Private Service Connect (PSC) in the GCP Console depends on whether you are **publishing a service** (Producer) or **connecting to a service / Google API** (Consumer).
+
+---
+
+### Scenario 1: Connect to Google APIs or Published Services (Consumer Side)
+
+Use this workflow to give private workloads access to Google APIs (like Cloud Storage or BigQuery) or a third-party/internal producer service using a private IP.
+
+1. **Go to Private Service Connect:**
+   * Open the **GCP Console**.
+   * Navigate to **Network Services** -> **Private Service Connect**.
+2. **Connect an Endpoint:**
+   * Under the **Connected Endpoints** tab, click **Connect Endpoint**.
+3. **Choose Target Type:**
+   * Select **Google APIs** or **Published service** (depending on what you are connecting to).
+4. **Configure Endpoint Details:**
+   * **Target / Service Attachment URL:** If connecting to a custom/third-party service, paste the URI string provided by the producer.
+   * **Network:** Select your VPC network.
+   * **Subnet:** Choose the subnet where the endpoint IP should be created.
+   * **IP Address:** Create or assign a static internal IP address in that subnet.
+5. **Set up Service Directory & DNS (Optional):**
+   * Link the endpoint to **Service Directory** and configure a private DNS zone so your applications can access the service using a friendly domain name instead of the IP address.
+6. **Click Add Endpoint.**
+
+---
+
+### Scenario 2: Publish Your Own Service (Producer Side)
+
+Use this workflow to share an internal application with other VPCs or external consumer projects without setting up full VPC Peering.
+
+1. **Prerequisite:** Ensure your service is already sitting behind a supported regional **Internal Load Balancer** (ILB) in your VPC.
+2. **Go to Private Service Connect:**
+   * Open **Network Services** -> **Private Service Connect**.
+3. **Publish Service:**
+   * Switch to the **Published Services** tab and click **Publish Service**.
+4. **Configure the Service Attachment:**
+   * **Load Balancer Type:** Select your internal load balancer type (e.g., Regional internal Application Load Balancer or Passthrough ILB).
+   * **Internal Load Balancer:** Pick your target load balancer.
+   * **Subnets:** Select a dedicated subnetwork with the purpose set to *Private Service Connect* (used for NAT IP allocation to incoming consumer traffic).
+   * **Connection Preference:**
+     * *Automatically accept connections:* Allow any consumer with the attachment URI to connect.
+     * *Accept connections for selected projects:* Require manual approval or specify allowed GCP Project IDs.
+5. **Click Add Service.**
+6. **Share the Service Attachment URI:** Copy the generated Service Attachment URI string and share it with your consumers so they can set up their endpoint.
+
 ---
 
 # Chapter 8 — Interview Decision Trees
