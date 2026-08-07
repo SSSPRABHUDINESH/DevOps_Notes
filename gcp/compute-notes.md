@@ -25,6 +25,50 @@ Application workload
 ### Important Points
 Choose based on bottleneck, not habit. Monitor CPU, memory, disk, and network before resizing.
 
+## Machine Family Selection
+
+```
+New Workload
+
+      │
+
+CPU Intensive?
+
+ ┌──────┴───────┐
+
+Yes             No
+
+ │               │
+
+ ▼               ▼
+
+C2/C3      Memory Intensive?
+
+                  │
+
+         ┌────────┴────────┐
+
+        Yes               No
+
+        │                 │
+
+        ▼                 ▼
+
+Memory Optimized      General Purpose
+
+                           │
+
+                    ┌──────┴──────┐
+
+                   Cost         Balanced
+
+                    │              │
+
+                    ▼              ▼
+
+                    E2             N2
+```
+
 ## 2. E2 Machine Family
 
 ### Definition
@@ -307,7 +351,12 @@ Google maintenance
 Host B
   └── Same VM continues
 ```
-
+### Live Migration limitations
+- Live migration works for supported standard workloads.
+- Hardware-coupled workloads may require terminate/restart behavior.
+- Local SSD / some GPU-related cases can affect maintenance behavior.
+- Live Migration does not remove the need for HA design.
+  
 ### Important Points
 Works for planned maintenance; not all hardware-dependent workloads support it.
 
@@ -415,9 +464,18 @@ The boot disk is a role; it is often backed by Persistent Disk or Hyperdisk.
 ### Definition
 Persistent Disk is durable, network-attached block storage for VMs.
 
+### Lifecycle
+- Persistent Disk is independent of the VM lifecycle.
+- A VM can be deleted while the disk remains.
+- A disk can be detached from one VM and attached to another VM.
+- Boot disk is a role, not a storage type.
+
 ### READ/Write
 1. Only ONE VM can `write`.
 2. ONE PD can be connected to multiple vm's, But All will have `READ` access.
+
+- `ReadWriteOnce`: one VM can write to the disk at a time.
+- `ReadOnlyMany`: multiple VMs can attach the same disk in read-only mode.
 
 ### Use Cases
 OS disks, application data, databases, logs, shared read-only data.
@@ -444,6 +502,11 @@ Persistent Disk survives VM deletion if configured to do so and supports snapsho
 ### Definition
 Images are read-only templates used to create boot disks.
 
+- Image = read-only template used to create boot disks.
+- Boot disk = writable disk from which a VM boots.
+- Snapshot = point-in-time copy of an existing persistent disk.
+- Custom image = reusable image created from a configured VM or disk.
+
 ### Use Cases
 Creating new VMs quickly with a standard OS.
 
@@ -468,6 +531,12 @@ Image is a template, not a running disk.
 
 ### Definition
 Snapshots are point-in-time copies of Persistent Disks.
+
+### Features
+- First snapshot stores full data.
+- Later snapshots store only changed blocks.
+- Restore reconstructs the full disk automatically; user does not manually apply every snapshot.
+
 
 ### Use Cases
 Backups, disaster recovery, disk restore, cloning storage state.
@@ -549,10 +618,28 @@ Startup script runs as root
 ### Important Points
 Great for dynamic boot-time tasks; pair with custom images for static software baselines.
 
+### Startup scripts and guest agent
+- Startup scripts run after the OS boots.
+- They are commonly stored in instance metadata.
+- They are useful for dynamic boot-time configuration, not for everything.
+- Golden images handle static software installation; startup scripts handle environment-specific runtime setup.
+
 ## 22. Metadata
 
 ### Definition
 Metadata is key-value configuration provided to VMs via the metadata server.
+
+### Metadata server purpose
+- Metadata server is not just key-value storage.
+- It is the VM’s internal control-plane interface.
+- Used for startup scripts, project/instance metadata, and service account tokens.
+- VM pulls metadata; Google does not continuously push it like a health check.
+
+### Service account authentication flow
+- Service account role grants authorization.
+- Metadata server provides short-lived OAuth access tokens for authentication.
+- Avoid storing long-lived service-account JSON keys on disk when possible.
+- Use attached service account + metadata server for GCE workloads.
 
 ### Use Cases
 Startup scripts, environment flags, service account tokens, instance-specific configuration.
@@ -609,6 +696,18 @@ Some Hyperdisk types support multi-writer, but the application must be cluster-a
 ### Definition
 Local SSD is very fast ephemeral storage physically attached to the host.
 
+### Local SSD persistence model
+- Local SSD is physically attached to the host.
+- It is not RAM.
+- It is ephemeral from the VM perspective.
+- Data can be lost if the host is replaced or the VM is stopped/terminated depending on the configuration.
+- Best for cache, scratch space, temporary processing.
+
+### Capacity limits
+- Not unlimited.
+- Depends on machine family and machine type.
+- Limited by how many Local SSD devices the host/machine type supports.
+
 ### Use Cases
 Caches, scratch space, temporary processing, high-speed ephemeral workloads.
 
@@ -625,6 +724,38 @@ Physical host
 
 ### Important Points
 Local SSD is not RAM. It is physical SSD storage attached to the host and data is lost when the host or VM is gone.
+
+## Storage Decision Flow
+
+```
+Need Storage
+
+      │
+
+Need Data Persistence?
+
+ ┌──────────┴──────────┐
+
+Yes                    No
+
+ │                      │
+
+ ▼                      ▼
+
+Need High IOPS?     Local SSD
+
+ │
+
+ ┌────────┴─────────┐
+
+No                  Yes
+
+ │                   │
+
+ ▼                   ▼
+
+Persistent Disk   Hyperdisk
+```
 
 ## 25. Reservations
 
@@ -676,6 +807,12 @@ Compact reduces latency by keeping VMs close; spread improves failure isolation.
 
 ### Definition
 OS Login uses IAM identities to manage SSH access to Linux VMs.
+
+### OS Login prerequisites
+- OS Login must be enabled at project or instance level.
+- IAM role alone is not enough.
+- Typical roles: `roles/compute.osLogin`, `roles/compute.osAdminLogin`.
+- Metadata SSH keys and OS Login should be contrasted clearly.
 
 ### Use Cases
 Enterprise SSH management, large fleets, easier access revocation.
