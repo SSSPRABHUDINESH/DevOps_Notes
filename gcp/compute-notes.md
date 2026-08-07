@@ -415,6 +415,10 @@ The boot disk is a role; it is often backed by Persistent Disk or Hyperdisk.
 ### Definition
 Persistent Disk is durable, network-attached block storage for VMs.
 
+### READ/Write
+1. Only ONE VM can `write`.
+2. ONE PD can be connected to multiple vm's, But All will have `READ` access.
+
 ### Use Cases
 OS disks, application data, databases, logs, shared read-only data.
 
