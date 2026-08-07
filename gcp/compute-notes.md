@@ -234,6 +234,11 @@ Shielded VM protects boot integrity, not runtime memory.
 
 ## 10. Confidential VMs
 
+### Pain point
+1. Data inside cloud storage - Encrypted
+2. Data during transit - Encrypted
+3. Data inside RAM (While processing data) - No Encryption
+
 ### Definition
 Confidential VMs protect data in use by encrypting memory with hardware confidential computing support.
 
