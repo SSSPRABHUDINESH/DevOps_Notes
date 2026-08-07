@@ -493,6 +493,12 @@ Snapshots are incremental after the first snapshot. Restoring a snapshot reconst
 ### Definition
 Custom images are reusable images created from configured VMs or disks.
 
+### Sources of Custom image:
+1. **Persistent Disk (PD)**: An existing block storage volume (usually your VM's boot disk), even if it is currently attached to a running virtual machine.
+2. **Snapshot**: A standard or archive snapshot that you previously captured from a persistent disk.
+3. **Another Image**: An existing custom image within your current project, or an image shared with you from another Google Cloud project.
+4. **Cloud Storage File**: A compressed virtual disk file (like a `.tar.gz` archive containing a raw disk image file) uploaded to a Google Cloud Storage bucket. This is commonly used when migrating on-premises virtual machines to the cloud.
+
 ### Use Cases
 Golden images, standardized enterprise VM builds, rapid server provisioning.
 
