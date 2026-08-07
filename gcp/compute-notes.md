@@ -553,6 +553,11 @@ Metadata is key-value configuration provided to VMs via the metadata server.
 ### Use Cases
 Startup scripts, environment flags, service account tokens, instance-specific configuration.
 
+### What are Service Account Tokens:
+Service access tokens are used to connect your application code, tools, or pipelines to Google Cloud APIs and services.
+   -  Service access tokens are temporary, short-lived OAuth 2.0 bearer credentials (expiring in 1 hour by default) used to call Google Cloud APIs. 
+   -  They overtake long-lived static `service account keys` by eliminating permanent secrets, reducing the attack surface, and removing the heavy operational burden of manual key rotation and storage
+
 ### Examples
 `enable-oslogin=TRUE`, startup script, environment name.
 
