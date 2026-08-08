@@ -640,6 +640,45 @@ Metadata is key-value configuration provided to VMs via the metadata server.
 - Metadata server provides short-lived OAuth access tokens for authentication.
 - Avoid storing long-lived service-account JSON keys on disk when possible.
 - Use attached service account + metadata server for GCE workloads.
+```
+                  Compute Engine VM
+
+                         │
+
+                         ▼
+
+                 Attached Service Account
+
+                         │
+
+                         ▼
+
+                  Metadata Server
+
+                         │
+
+                         ▼
+
+                    Access Token
+
+                         │
+
+                         ▼
+
+                 Cloud Storage API
+
+                         │
+
+                         ▼
+
+                    IAM Check
+
+                         │
+
+                         ▼
+
+                 Bucket / Object
+```
 
 ### Use Cases
 Startup scripts, environment flags, service account tokens, instance-specific configuration.
