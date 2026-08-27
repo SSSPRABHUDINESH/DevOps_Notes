@@ -807,7 +807,50 @@ Column Family: vehicle_info
 
 * **Column Scans:** BigQuery only scans and bills for the columns you ask for in your `SELECT` query.
 
+### Architecture diagram:
 
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                       1. DATA SOURCES & INGESTION                                                │
+│                                                                                                                  │
+│  [ OLTP DBs (Cloud SQL / Spanner) ] ──(CDC / Datastream)──┐                                                     │
+│  [ Cloud Storage (CSV/JSON/Parquet)] ─────────────────────┼──► [ Cloud Dataflow / Dataproc / Cloud Composer ]     │
+│  [ Streaming Telemetry / Pub/Sub ]  ──────────────────────┤     (ETL: Extract, Clean, Filter, Transform)        │
+│  [ SaaS APIs & Logs ]               ──────────────────────┘                         │                            │
+└─────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────┘
+                                                                                      │
+                                                              Batch Load / Storage Write API
+                                                                                      │
+                                                                                      ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                         2. GOOGLE BIGQUERY ARCHITECTURE                                          │
+│                                                                                                                  │
+│    [ SQL Query / BI Tool / Data Analyst ]                                                                        │
+│                       │                                                                                          │
+│                       ▼                                                                                          │
+│        ┌─────────────────────────────┐                                                                           │
+│        │      Dremel Root Node       │  ◄── (Receives query & compiles execution tree)                           │
+│        └──────────────┬──────────────┘                                                                           │
+│                       ▼                                                                                          │
+│        ┌─────────────────────────────┐                                                                           │
+│        │  Intermediate Mixer Nodes   │  ◄── (Aggregates sub-query results)                                       │
+│        └──────────────┬──────────────┘                                                                           │
+│                       ▼                                                                                          │
+│        ┌─────────────────────────────┐                                                                           │
+│        │  Leaf Nodes (Dremel Slots)  │  ◄── (Massive parallel compute workers)                                   │
+│        └──────────────┬──────────────┘                                                                           │
+│                       │                                                                                          │
+│ ══════════════════════╪════════════════════════════════════════════════════════════════════════════════════════ │
+│                       │   JUPITER PETABIT NETWORK (>1 Petabit/s Bisection Bandwidth)                             │
+│ ══════════════════════╪════════════════════════════════════════════════════════════════════════════════════════ │
+│                       ▼                                                                                          │
+│        ┌─────────────────────────────┐                                                                           │
+│        │   Colossus Storage Layer    │                                                                           │
+│        │  (Capacitor Columnar Files) │  ◄── (Separated persistent storage: chunks replicated across data centers)│
+│        └─────────────────────────────┘                                                                           │
+│                                                                                                                  │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ### 6.3 Storage Hierarchy & Comparisons
 
