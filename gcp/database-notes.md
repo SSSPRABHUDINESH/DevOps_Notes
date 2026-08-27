@@ -552,6 +552,22 @@ ZADD leaderboard:game 2400 "PlayerTwo"
 
 * **Strong Multi-Zone Replication:** Built on Google's Spanner engine. Every write is saved synchronously across multiple zones before confirming success.
 
+> Doubt: But cloud spanner is relational db then how it is used in noSQL system ?
+
+Cloud Spanner *is* a strongly consistent, relational database.
+
+It seems contradictory that a NoSQL document database like Firestore runs on top of a relational SQL database, but it comes down to how Google separates the developer interface from the underlying storage engine.
+
+**The Two Layers of Firestore**
+
+* **The Developer Interface (NoSQL):** When you interact with Firestore, you use its NoSQL API. You send flexible, JSON-like documents and organize them into collections. You never write SQL or manage rigid tables.
+* **The Storage Engine (Relational):** Behind the scenes, Google's internal systems take your NoSQL documents and translate them into a format that can be stored within Spanner's massive, highly structured relational tables.
+
+**Why Google Built It This Way**
+Google wanted mobile and web developers to have the speed, flexibility, and real-time syncing of a NoSQL database, but they needed the backend to be virtually indestructible. By using Spanner as the underlying engine, Firestore inherits Spanner's enterprise-grade superpowers without forcing you to write complex SQL:
+
+* **ACID Transactions:** Ensuring that complex, multi-document writes (like deducting money from one account and adding it to another) succeed or fail together perfectly.
+* **Global Consistency:** Synchronous data copying across multiple geographic zones so that no matter where a user is, they always read the most up-to-date data.
 
 
 ### 4.5 GCP Architecture & Provisioning
