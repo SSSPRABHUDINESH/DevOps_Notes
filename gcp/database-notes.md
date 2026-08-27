@@ -110,32 +110,11 @@ Cloud SQL          AlloyDB         Firestore                 Bigtable
 
 * **Storage Type:** Built on Google's Persistent Disks (SSDs or HDDs).
 
-
-
 | Feature | Cloud SQL | Running DB on Compute Engine VM | AlloyDB |
-| --- | --- | --- | --- |
-| **Management**<br> | Google manages OS, backups, updates
-
- | You do everything manually
-
- | Google manages + extra AI tuning
-
- |
-| **Storage**<br> | Normal Cloud Persistent Disk
-
- | Standard Attached Disk
-
- | Separate, high-speed shared storage
-
- |
-| **Read Scaling**<br> | Add Read Replicas
-
- | Manually configure replication
-
- | Auto-scaling groups of read pools
-
- |
-
+| :--- | :--- | :--- | :--- |
+| **Management** | Google manages OS, backups, updates | You do everything manually | Google manages + extra AI tuning |
+| **Storage** | Normal Cloud Persistent Disk | Standard Attached Disk | Separate, high-speed shared storage |
+| **Read Scaling** | Add Read Replicas | Manually configure replication | Auto-scaling groups of read pools |
 ### 1.4 Under the Hood: Persistence & Durability
 
 * **Auto Storage Growth:** If your database starts running out of disk space, Google will automatically expand the disk size without shutting down the database.
@@ -327,23 +306,10 @@ Analytics / BI
 
 
 | Feature | Cloud SQL for PostgreSQL | AlloyDB for PostgreSQL |
-| --- | --- | --- |
-| **Storage System**<br> | Single attached persistent disk
-
- | Smart, multi-zone distributed shared storage
-
- |
-| **Analytical Speed**<br> | Normal PostgreSQL speed
-
- | Up to 100x faster (Built-in Columnar Engine)
-
- |
-| **Failover Time (HA)**<br> | Under 60 seconds
-
- | Under 10 seconds (Nearly instantaneous)
-
- |
-
+| :--- | :--- | :--- |
+| **Storage System** | Single attached persistent disk | Smart, multi-zone distributed shared storage |
+| **Analytical Speed** | Normal PostgreSQL speed | Up to 100x faster (Built-in Columnar Engine) |
+| **Failover Time (HA)** | Under 60 seconds | Under 10 seconds (Nearly instantaneous) |
 ### 2.4 Under the Hood: Persistence & Durability
 
 * **Log-Based Storage:** The database compute engine only sends light transaction logs (WAL) over the network. The storage layer processes and saves them independently, eliminating I/O bottlenecks.
@@ -441,29 +407,11 @@ GROUP BY payment_method;
 
 * **Data Model:** NoSQL Key-Value dictionary. Stores Strings, Lists, Sets, and Hashes.
 
-
-
 | Feature | Memorystore (Redis/Valkey) | Cloud SQL | Firestore |
-| --- | --- | --- | --- |
-| **Where Data Lives**<br> | **RAM (Fast, Volatile)**<br> | Disk (Permanent)
-
- | Distributed SSD (Permanent)
-
- |
-| **How You Look Up Data**<br> | By exact Key name
-
- | Complex SQL Queries
-
- | Field filters in JSON documents
-
- |
-| **Primary Job**<br> | Speed Booster / Sessions
-
- | Permanent Source of Truth
-
- | Permanent App Document Store
-
- |
+| :--- | :--- | :--- | :--- |
+| **Where Data Lives** | **RAM (Fast, Volatile)** | Disk (Permanent) | Distributed SSD (Permanent) |
+| **How You Look Up Data** | By exact Key name | Complex SQL Queries | Field filters in JSON documents |
+| **Primary Job** | Speed Booster / Sessions | Permanent Source of Truth | Permanent App Document Store |
 
 ### 3.4 Under the Hood: Persistence & Durability
 
@@ -559,26 +507,10 @@ ZADD leaderboard:game 2400 "PlayerTwo"
 ```
 
 | Feature | Firestore | Memorystore | Cloud SQL |
-| --- | --- | --- | --- |
-| **Data Layout**<br> | Flexible JSON Documents
-
- | Key-Value Pairs
-
- | Strict Tables & Rows
-
- |
-| **Schema**<br> | Schema-less (Each doc can have different fields) | Opaque Strings/Objects
-
- | Fixed schema (All rows share same columns)
-
- |
-| **Real-Time Sync**<br> | Built-in live listeners
-
- | Redis Pub/Sub
-
- | Not supported natively
-
- |
+| :--- | :--- | :--- | :--- |
+| **Data Layout** | Flexible JSON Documents | Key-Value Pairs | Strict Tables & Rows |
+| **Schema** | Schema-less (Each doc can have different fields) | Opaque Strings/Objects | Fixed schema (All rows share same columns) |
+| **Real-Time Sync** | Built-in live listeners | Redis Pub/Sub | Not supported natively |
 
 ### 4.4 Under the Hood: Persistence & Durability
 
@@ -658,28 +590,10 @@ Bad Pattern:   "Find all sensors where temperature is greater than 100°F" (Requ
 
 
 | Feature | Cloud Bigtable | Firestore | BigQuery |
-| --- | --- | --- | --- |
-| **Best Used For**<br> | High-speed, heavy write streams (Petabytes)
-
- | Mobile/Web user documents
-
- | Business analytics & reporting
-
- |
-| **Lookups**<br> | By Row Key & Key Ranges only
-
- | Filter by any JSON property
-
- | Full SQL Queries & Table Joins
-
- |
-| **Write Capacity**<br> | Millions of writes per second
-
- | Moderate write speed per document
-
- | Bulk ingest / Streaming buffers
-
- |
+| :--- | :--- | :--- | :--- |
+| **Best Used For** | High-speed, heavy write streams (Petabytes) | Mobile/Web user documents | Business analytics & reporting |
+| **Lookups** | By Row Key & Key Ranges only | Filter by any JSON property | Full SQL Queries & Table Joins |
+| **Write Capacity** | Millions of writes per second | Moderate write speed per document | Bulk ingest / Streaming buffers |
 
 ### 5.4 Under the Hood: Persistence & Durability
 
@@ -757,30 +671,11 @@ Column Family: vehicle_info
 * **Data Format:** Columnar (Capacitor format)—stores table data column by column instead of row by row.
 
 
-
 | Feature | BigQuery (OLAP) | Cloud SQL / AlloyDB (OLTP) | Bigtable (NoSQL) |
-| --- | --- | --- | --- |
-| **How Data is Stored**<br> | **Columns** (Great for math/aggregations)
-
- | **Rows** (Great for single user records)
-
- | **Wide Rows** (Sorted by key)
-
- |
-| **Main Action**<br> | Scan millions of rows for big trends
-
- | Quick Insert, Update, Delete
-
- | Super-fast streaming write ingestion
-
- |
-| **Scale**<br> | Petabytes / Exabytes
-
- | Gigabytes to Terabytes
-
- | Petabytes
-
- |
+| :--- | :--- | :--- | :--- |
+| **How Data is Stored** | **Columns** (Great for math/aggregations) | **Rows** (Great for single user records) | **Wide Rows** (Sorted by key) |
+| **Main Action** | Scan millions of rows for big trends | Quick Insert, Update, Delete | Super-fast streaming write ingestion |
+| **Scale** | Petabytes / Exabytes | Gigabytes to Terabytes | Petabytes |
 
 ### 6.4 Under the Hood: Persistence & Durability
 
