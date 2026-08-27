@@ -194,14 +194,13 @@ This distinction is **very important**.
 
 ### 📦 Data Ingestion Scenarios
 
-* 🛑 **100GB in a Single Transaction ➔ OLAP**
-* **Why:** This is a massive bulk load. Analytical DBs (like BigQuery) are built to swallow giant chunks at once. Trying this on an OLTP database will crash it, lock all tables, or exhaust the transaction log.
-
 
 * 🚀 **1KB per Transaction (10,000 times) ➔ OLTP**
 * **Why:** Fast, tiny, highly concurrent operations. This mimics a live web app (like an e-commerce site) processing thousands of simultaneous user actions.
 
 
+* 🛑 **100GB in a Single Transaction ➔ OLAP**
+* **Why:** This is a massive bulk load. Analytical DBs (like BigQuery) are built to swallow giant chunks at once. Trying this on an OLTP database will crash it, lock all tables, or exhaust the transaction log.
 
 ---
 
