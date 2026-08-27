@@ -88,8 +88,33 @@ Cloud SQL          AlloyDB               Firestore                 Bigtable
 
 * **Why use it instead of your own VM?** Google takes care of server maintenance, OS updates, security patches, automated backups, and failure recovery so you only manage your data and queries.
 
+---
 
-
+### Architecture diagram with read replica:
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           Google Cloud (VPC)                                │
+│                                                                             │
+│  [ Application / App Engine / GKE ] ───── (Heavy Read Traffic) ─────────┐   │
+│           │                                                             │   │
+│           ▼ (Writes & Standard Reads)                                   ▼   │
+│  [ Primary DB Endpoint (Internal IP) ]                     [ Replica IP ]   │
+│           │                                                             │   │
+│ ══════════╪═════════════════════════════════════════════════════════════╪══ │
+│           │                  Google Managed Network                     │   │
+│           │                                                             │   │
+│      [ Zone A ]                     [ Zone B ]                [ Zone C ]    │
+│     ┌───────────┐                 ┌───────────┐             ┌───────────┐   │
+│     │  Primary  │                 │  Standby  │             │   Read    │   │
+│ ────► Instance  │                 │ Instance  │             │  Replica  │   │
+│     └─────┬─────┘                 └─────┬─────┘             └─────▲─────┘   │
+│           │                             │                         │         │
+│           ├── (Synchronous Sync) ───────┤                         │         │
+│           │                             │                         │         │
+│           └──────────────── (Asynchronous Replication) ───────────┘         │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+---
 ### 1.2 Caching Strategy & Access Pattern
 
 * **Source of Truth:** Cloud SQL holds your real, permanent data on disk.
@@ -110,6 +135,29 @@ Cloud SQL          AlloyDB               Firestore                 Bigtable
 [ Cloud SQL (Main DB) ] ──── (Copy Data) ────► [ Read Replicas (Reads Only) ]
 
 ```
+---
+
+### Commands for connecting:
+
+**Connecting for Writes (Primary Instance)**
+All write operations (`INSERT`, `UPDATE`, `DELETE`) and critical real-time reads must be routed to the Primary instance.
+
+* **Via Direct IP (using `psql`):**
+`psql -h <PRIMARY_INSTANCE_IP> -U postgres -d your_database`
+* **Via Cloud SQL Auth Proxy:**
+Start the proxy: `./cloud-sql-proxy <PROJECT_ID>:<REGION>:<PRIMARY_INSTANCE_NAME>`
+Connect app to proxy: `psql -h 127.0.0.1 -U postgres -d your_database`
+
+**Connecting for Reads (Read Replica)**
+All heavy analytical or reporting `SELECT` queries should be routed to the Read Replica instance to avoid burdening the primary database.
+
+* **Via Direct IP (using `psql`):**
+`psql -h <READ_REPLICA_IP> -U postgres -d your_database`
+* **Via Cloud SQL Auth Proxy:**
+Start the proxy: `./cloud-sql-proxy <PROJECT_ID>:<REGION>:<READ_REPLICA_INSTANCE_NAME>`
+Connect app to proxy: `psql -h 127.0.0.1 -U postgres -d your_database`
+
+---
 
 ### 1.3 Storage Hierarchy & Comparisons
 
