@@ -192,8 +192,10 @@ Connect app to proxy: `psql -h 127.0.0.1 -U postgres -d your_database`
 
 
 * **Cloud SQL Auth Proxy:** A small helper program you run next to your app that handles secure SSL/TLS connections and IAM authentication automatically.
-      *  Looks similar as Identity Aware proxy (IAP) for loadbalancer - share a similar security philosophy: Enforcing IAM-based `authorization` and `encryption` without exposing resources directly to the public intern
-      *  Creates a secure TLS 1.3 tunnel from the proxy client directly to the Cloud SQL backend.
+      
+  *  Looks similar as Identity Aware proxy (IAP) for loadbalancer - share a similar security philosophy: Enforcing IAM-based `authorization` and `encryption` without exposing resources directly to the public intern
+      
+  *  Creates a secure TLS 1.3 tunnel from the proxy client directly to the Cloud SQL backend.
 
 
 
