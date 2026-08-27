@@ -37,6 +37,14 @@ Let's begin.
 
 ---
 
+| Database | Multi-Writer (Active-Active) Support? | How Writes Work |
+| :--- | :--- | :--- |
+| Cloud SQL | ❌ No | It uses a single primary architecture. All INSERT, UPDATE, and DELETE commands must go to the one primary node. Replicas are strictly for reading. |
+| AlloyDB | ❌ No | Like Cloud SQL, it uses a single primary node for all writes. It scales massively for reads using read pools, but writes are still centralized. |
+| Memorystore | ❌ No | Uses a standard Redis/Valkey Primary-Replica architecture. Writes go to the primary node. |
+| Firestore | ✅ Yes | It is a globally distributed NoSQL database. In a multi-region setup, you can write data simultaneously from different regions, and Google handles the synchronization. |
+| Cloud Bigtable | ✅ Yes | It fully supports multi-primary (active-active) replication. You can have clusters in different regions, and every cluster can accept reads and writes simultaneously. |
+
 ## ☁️ GCP Databases
 
 ```text
