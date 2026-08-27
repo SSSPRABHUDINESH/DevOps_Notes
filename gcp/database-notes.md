@@ -42,20 +42,20 @@ Let's begin.
 ```text
                        HOW TO CHOOSE YOUR DATABASE:
                                     │
-           ┌────────────────────────┴────────────────────────┐
-           ▼                                                 ▼
-   Transactional (OLTP)                              Analytical (OLAP)
-(Daily app clicks, orders, updates)                 (Big reports, 5-year trends)
-           │                                                 │
-   ┌───────┴───────────────────────┐                         ▼
-   ▼                               ▼                      BigQuery
-Relational (Tables & Rows)?      NoSQL?                 (Data Warehouse)
-   │                               │
-   ├───────────────┐               ├─────────────────────────┐
-   ▼               ▼               ▼                         ▼
-Standard Workload  Heavy Enterprise Documents (JSON)?     Huge Stream / IoT?
-Cloud SQL          AlloyDB         Firestore                 Bigtable
-(Postgres/MySQL)   (Super Postgres)(Web & Mobile Apps)      (Time-Series & Telemetry)
+           ┌────────────────────────┴────────────────────────────┐
+           ▼                                                     ▼
+   Transactional (OLTP)                                  Analytical (OLAP)
+(Daily app clicks, orders, updates)                    (Big reports, 5-year trends)
+           │                                                     │
+   ┌───────┴───────────────────────────┐                         ▼
+   ▼                                   ▼                      BigQuery
+Relational (Tables & Rows)?         NoSQL?                 (Data Warehouse)
+   │                                   │
+   ├───────────────────┐               ├─────────────────────────────┐
+   ▼                   ▼               ▼                             ▼
+Standard Workload  Heavy Enterprise    Documents (JSON)?     Huge Stream / IoT?
+Cloud SQL          AlloyDB               Firestore                 Bigtable
+(Postgres/MySQL)   (Super Postgres)    (Web & Mobile Apps)      (Time-Series & Telemetry)
                                    │
                                    ▼
                            Need Extreme Speed?
