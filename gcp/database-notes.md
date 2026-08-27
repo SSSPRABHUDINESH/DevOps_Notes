@@ -810,46 +810,44 @@ Column Family: vehicle_info
 ### Architecture diagram:
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                       1. DATA SOURCES & INGESTION                                                │
-│                                                                                                                  │
-│  [ OLTP DBs (Cloud SQL / Spanner) ] ──(CDC / Datastream)──┐                                                     │
-│  [ Cloud Storage (CSV/JSON/Parquet)] ─────────────────────┼──► [ Cloud Dataflow / Dataproc / Cloud Composer ]     │
-│  [ Streaming Telemetry / Pub/Sub ]  ──────────────────────┤     (ETL: Extract, Clean, Filter, Transform)        │
-│  [ SaaS APIs & Logs ]               ──────────────────────┘                         │                            │
-└─────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────┘
-                                                                                      │
-                                                              Batch Load / Storage Write API
-                                                                                      │
-                                                                                      ▼
-┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                         2. GOOGLE BIGQUERY ARCHITECTURE                                          │
-│                                                                                                                  │
-│    [ SQL Query / BI Tool / Data Analyst ]                                                                        │
-│                       │                                                                                          │
-│                       ▼                                                                                          │
-│        ┌─────────────────────────────┐                                                                           │
-│        │      Dremel Root Node       │  ◄── (Receives query & compiles execution tree)                           │
-│        └──────────────┬──────────────┘                                                                           │
-│                       ▼                                                                                          │
-│        ┌─────────────────────────────┐                                                                           │
-│        │  Intermediate Mixer Nodes   │  ◄── (Aggregates sub-query results)                                       │
-│        └──────────────┬──────────────┘                                                                           │
-│                       ▼                                                                                          │
-│        ┌─────────────────────────────┐                                                                           │
-│        │  Leaf Nodes (Dremel Slots)  │  ◄── (Massive parallel compute workers)                                   │
-│        └──────────────┬──────────────┘                                                                           │
-│                       │                                                                                          │
-│ ══════════════════════╪════════════════════════════════════════════════════════════════════════════════════════ │
-│                       │   JUPITER PETABIT NETWORK (>1 Petabit/s Bisection Bandwidth)                             │
-│ ══════════════════════╪════════════════════════════════════════════════════════════════════════════════════════ │
-│                       ▼                                                                                          │
-│        ┌─────────────────────────────┐                                                                           │
-│        │   Colossus Storage Layer    │                                                                           │
-│        │  (Capacitor Columnar Files) │  ◄── (Separated persistent storage: chunks replicated across data centers)│
-│        └─────────────────────────────┘                                                                           │
-│                                                                                                                  │
-└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 1. DATA SOURCES & INGESTION (ETL)                                      │
+│                                                                                                        │
+│  [ OLTP DBs / Cloud Storage / Streams / APIs ] ──► [ Cloud Dataflow / Dataproc (Transform) ]           │
+└────────────────────────────────────────┬───────────────────────────────────────────────────────────────┘
+                                         │
+                               (Batch Load / Storage API)
+                                         │
+                                         ▼ (Data is loaded directly into storage)
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                               2. BIGQUERY STORAGE LAYER (Persistent)                                   │
+│                                                                                                        │
+│    [ Colossus Distributed File System ]  ──► (Stores data in highly compressed Capacitor columns)      │
+└────────────────────────────────────────┬───────────────────────────────────────────────────────────────┘
+                                         │
+                                         ▲ (Data is accessed ONLY when a query is executed)
+                                         │
+═════════════════════════════════════════╪════════════════════════════════════════════════════════════════
+                 JUPITER PETABIT NETWORK │ (Lightning-fast bridge between Storage and Compute)
+═════════════════════════════════════════╪════════════════════════════════════════════════════════════════
+                                         │
+                                         ▼
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                     3. BIGQUERY COMPUTE LAYER (Activates on User Request)                              │
+│                                                                                                        │
+│    [ Leaf Nodes (Slots) ]       ◄── (Massive parallel workers read columns from Colossus)              │
+│              ▲                                                                                         │
+│              │                                                                                         │
+│    [ Intermediate Nodes ]       ◄── (Aggregates the sub-query results)                                 │
+│              ▲                                                                                         │
+│              │                                                                                         │
+│    [ Dremel Root Node ]         ◄── (Receives query, builds execution tree, returns final answer)      │
+└──────────────▲─────────────────────────────────────────────────────────────────────────────────────────┘
+               │
+               │ (Action: Submits SQL Query)
+               │
+[ 👤 User / Data Analyst / BI Dashboard ]
+
 ```
 
 ### 6.3 Storage Hierarchy & Comparisons
