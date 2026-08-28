@@ -1268,6 +1268,19 @@ Sliding Windows: |======== 00:00-00:10 ========|
 * **Dataflow Prime:** Advanced compute engine configuration with vertical resource autoscaling (adjusting worker memory dynamically for memory-intensive pipeline steps).
 * **Dataflow Templates (Flex Templates):** Package pipelines as standard Docker containers in Artifact Registry to allow developers and non-technical teams to run jobs via GCP Console UI or Cloud Scheduler.
 
+### 2.5.1 How to create Dataflow job:
+
+Dataflow jobs can be created mainly by using:
+
+* Dataflow Template
+* Dataflow job builder
+
+**Dataflow templates** allow you to package a Dataflow Pipeline for deployment. Anyone with the correct permissions can then use the template to deploy the package Pipeline.
+    * Google prebuilt templates
+    * Custom Dataflow templates
+
+**Job Builder** It is a visual UI for building and running Dataflow pipelines in the Google cloud console, without writing code.
+
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
 │                        Dataflow Managed Runtime                        │
@@ -1287,6 +1300,46 @@ Sliding Windows: |======== 00:00-00:10 ========|
 ```
 
 ### 2.6 Sample Pipeline & Code Example (Apache Beam Python Pipeline)
+
+1) 
+```python
+import apache_beam as beam
+from apache_beam.options.pipeline_options import PipelineOptions
+
+# ---------------------------------------------------------
+# 1. THE ENGINE: Telling the code WHERE to run
+# ---------------------------------------------------------
+# If runner='DirectRunner', it runs locally on your laptop.
+# If runner='DataflowRunner', it sends the job to Google Cloud Dataflow.
+pipeline_options = PipelineOptions(
+    runner='DataflowRunner', 
+    project='your-gcp-project-id',
+    region='us-central1',
+    temp_location='gs://your-cloud-storage-bucket/temp'
+)
+
+# ---------------------------------------------------------
+# 2. THE BLUEPRINT: Defining the pipeline steps
+# ---------------------------------------------------------
+# We pass the engine options into the pipeline blueprint
+with beam.Pipeline(options=pipeline_options) as p:
+    
+    (p 
+     # STEP A: Read raw data from a Cloud Storage bucket
+     | 'Read from File' >> beam.io.ReadFromText('gs://your-bucket/input_data.csv')
+     
+     # STEP B: Transform the data (e.g., filter out empty lines)
+     | 'Remove Empty Lines' >> beam.Filter(lambda line: len(line.strip()) > 0)
+     
+     # STEP C: Transform again (e.g., convert all text to UPPERCASE)
+     | 'Convert to Uppercase' >> beam.Map(lambda line: line.upper())
+     
+     # STEP D: Write the final cleaned data to a new destination
+     | 'Write to Output' >> beam.io.WriteToText('gs://your-bucket/cleaned_output')
+    )
+```
+
+2)
 
 ```python
 import apache_beam as beam
@@ -1322,6 +1375,29 @@ with beam.Pipeline(options=options) as p:
 
 ```
 
+### 2.6 Why Cloud Pub/Sub is needed?
+```
+✅ WITH PUB/SUB (Buffer & Fan-Out):
+[ 100,000 Devices / Apps ] 
+         │ (High-throughput publish)
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      Cloud Pub/Sub                          │
+│  • Absorbs millions of events/sec instantly                │
+│  • Stores data safely on disk for up to 7–31 days           │
+│  • Decouples producer speed from consumer processing speed  │
+└──────┬──────────────────────────────┬───────────────────────┘
+       │                              │
+       │ (Subscription 1)             │ (Subscription 2)
+       ▼                              ▼
+[ Cloud Dataflow ]             [ Cloud Storage ]
+ (Streaming Windowing)          (Raw Data Archive / Backup)
+       │
+ ┌─────┴────────────────┐
+ ▼                      ▼
+[ BigQuery ]       [ Bigtable ]
+(Analytics)        (Low-latency API)
+```
 ---
 
 ## 3. 🎯 Production Engineering Scenarios & Interview Playbook
