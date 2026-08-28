@@ -1399,6 +1399,20 @@ with beam.Pipeline(options=options) as p:
 (Analytics)        (Low-latency API)
 ```
 ---
+### **When to Choose Which**
+
+**Choose Cloud Dataproc if:**
+
+* You are migrating existing Spark, Hadoop, or Hive scripts from an on-premises datacenter.
+* You want fine-grained control over executor memory, Spark configurations, and custom YARN resource queues.
+* Your data scientists rely on interactive notebooks (like Jupyter) running directly on the cluster.
+
+**Choose Cloud Dataflow if:**
+
+* You are building a brand-new pipeline and want zero infrastructure maintenance.
+* You need to process high-volume, real-time streaming data with complex event-time windowing.
+* You want built-in features like **Liquid Sharding**, which automatically redistributes heavy workloads across idle workers to prevent bottlenecks.
+---
 
 ## 3. 🎯 Production Engineering Scenarios & Interview Playbook
 
