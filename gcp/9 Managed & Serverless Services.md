@@ -78,13 +78,18 @@ Cloud Run is built for **stateless** workloads.
 
 ### 🔹 Cloud Run Services vs. Cloud Run Jobs
 
-| Dimension | 🌐 Cloud Run Services | ⚙️ Cloud Run Jobs |
+Yes, your comparison is exactly right. The relationship between Cloud Run Services and Cloud Run Jobs is practically identical to the relationship between Deployments (application containers) and Jobs in Kubernetes.
+
+**Cloud Run Services vs. Cloud Run Jobs**
+
+| Feature | **Cloud Run Services** | **Cloud Run Jobs** |
 | --- | --- | --- |
-| **Primary Trigger** | Incoming Web Traffic (HTTP, WebSockets, gRPC) | Manual trigger, Cloud Scheduler, or Workflows |
-| **Port Requirement** | **Must** listen on `$PORT` | **No** listening port needed |
-| **Execution Model** | Responds to requests; stays idle or scales down | Runs tasks to completion, then exits (`exit 0`) |
-| **Timeout Limit** | Up to **60 minutes** per request | Up to **24 hours** per task |
-| **Common Use Cases** | Web APIs, microservices, webhooks, websites | Nightly backups, database migrations, ETL batch jobs |
+| **Primary Purpose** | Responds to incoming web traffic and events. | Executes a specific script or task to completion and quits. |
+| **Trigger Mechanism** | HTTP requests, WebSockets, gRPC. | Manual execution, Cloud Scheduler (cron), or Workflows. |
+| **Port Requirement** | **Must** start a web server and listen on the `$PORT` variable. | **No** listening port required. |
+| **Scaling & Lifecycle** | Scales up instances based on incoming traffic, and scales to zero when idle. | Runs the task and immediately shuts down the container upon completion (`exit 0`). |
+| **Maximum Timeout** | Up to **60 minutes** per request. | Up to **24 hours** per task. |
+| **Common Use Cases** | REST APIs, web applications, microservices, webhooks. | Database migrations, nightly backups, ETL data processing, sending batch emails. |
 
 ---
 
