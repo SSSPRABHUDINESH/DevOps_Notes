@@ -385,19 +385,6 @@ When traffic drops, the Knative Pod Autoscaler decides it's time to scale down. 
       * Your app finishes processing any long-running HTTP requests currently mid-flight.
       * If it were a stateful system, it would flush memory tables to disk (though in Cloud Run, any local disk changes are lost, as we noted!).
    4. Step 4: The Hard Kill (SIGKILL): If your application cleanly finishes its active tasks and exits on its own within the window, the instance disappears safely. If your application gets stuck or ignores the signal, once the grace period timer hits zero, Knative fires a SIGKILL (Signal 9) to terminate the container instantly.
-
-## Devops Tip for Containers
-If you notice that your Cloud Run logs show a lot of sudden connection resets or unhandled exceptions during auto-scaling events, it usually means your application code isn't listening for the SIGTERM signal. Adding a simple signal listener in your code allows you to close open database pools and finish tasks cleanly:
-
-// Node.js example listening for Knative's shutdown signal
-process.on('SIGTERM', () => {
-  console.info('SIGTERM signal received. Closing HTTP server and DB connections...');
-  server.close(() => {
-    db.pool.end(); // Cleanly close database connections
-    process.exit(0);
-  });
-});
-
   
 ---
 
