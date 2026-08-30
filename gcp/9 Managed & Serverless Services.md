@@ -1,23 +1,5 @@
-
 ---
 
-It looks like you are ready to continue exploring how Cloud Run or Knative handles these kinds of workloads!
-Since we established that a traditional stateful database shouldn't be run directly inside Cloud Run, let's look at how systems are actually built to keep your data safe.
-## 🛡️ How to Handle Databases with Cloud Run
-In a real production environment, you separate your computing layer from your storage layer entirely:
-
-   1. Stateless App (Cloud Run): Your application container runs inside Cloud Run. It handles incoming web traffic, processes logic, and routes API requests. It can scale up to thousands of instances or down to zero instantly.
-   2. Persistent Storage (Cloud SQL / AlloyDB): Your database runs as a separate managed service. This is where your WAL logs live, where MVCC handles data versions, and where records are securely flushed to persistent disks.
-   3. The Connection: Cloud Run connects securely to your database using the Cloud SQL Auth Proxy (built directly into Cloud Run settings) or via a private VPC connection.
-
-This gives you the absolute best of both worlds: your application can auto-scale instantly with zero server management, but your data is entirely safe from being erased when those containers shut down.
-------------------------------
-## 🚀 Moving Forward
-To see this in action or dive deeper, let me know what you would like to explore next:
-
-* Connect it: Would you like to see a step-by-step example of how a Cloud Run application securely talks to a database using a built-in proxy?
-* Deep Dive into Knative: Do you want to see exactly how Knative detects web traffic to spin up a container from zero, or how it uses SIGTERM to clean things up?
-* Architecture Design: Are you designing an app right now and wondering whether it's better suited for Cloud Run or a full Kubernetes engine (GKE)?
 
 
 
@@ -105,14 +87,14 @@ Because it is fully managed, Google completely hides the control plane, controll
 
 ------------------------------
 ## 📦 The Architecture Under the Hood
-While you only interact with a simple "Service" configuration, Google abstractly maps Cloud Run concepts directly to Kubernetes components in the background: [3, 4, 5] 
+While you only interact with a simple "Service" configuration, Google abstractly maps Cloud Run concepts directly to Kubernetes components in the background: 
 
-* 
-* The Kubernetes Controller Manager: Runs in the background to handle the state of your infrastructure. [6] 
-* Knative Controllers: Cloud Run uses the Knative Serving API specification. Custom controllers manage Revisions, Routes, and Configurations to orchestrate how container versions scale and receive web traffic. [4, 7] 
-* Pods → Instances: When Cloud Run spins up your container to handle a web request, it is launching a Kubernetes Pod, which Cloud Run renames to an Instance. [7] 
-* Kube-Scheduler: Cloud Run’s internal scheduler places your instances across Google’s massive, multi-tenant fleet of machines. [6] 
-* etcd: Google manages the key-value storage layer to track your service configurations and active revisions securely. [6] 
+
+* **The Kubernetes Controller Manager:** Runs in the background to handle the state of your infrastructure.
+* **Knative Controllers:** Cloud Run uses the Knative Serving API specification. Custom controllers manage Revisions, Routes, and Configurations to orchestrate how container versions scale and receive web traffic.
+* **Pods → Instances:** When Cloud Run spins up your container to handle a web request, it is launching a Kubernetes Pod, which Cloud Run renames to an Instance.
+* **Kube-Scheduler:** Cloud Run’s internal scheduler places your instances across Google’s massive, multi-tenant fleet of machines. 
+* **etcd:** Google manages the key-value storage layer to track your service configurations and active revisions securely.
 
 ### 3. Are containers called "instances" in Cloud Run?
 Almost, but there is a slight distinction.
@@ -336,6 +318,7 @@ When scaling down or rolling out a new revision, Cloud Run shuts down instances 
 [ Container Terminated ]
 
 ```
+---
 ## What is SIGTERM:
 
 SIGTERM stands for Signal Termination.
@@ -586,6 +569,17 @@ gcloud run deploy order-service \
     --set-secrets="/secrets/db_password=projects/PROJECT_ID/secrets/db_password:latest"
 
 ```
+
+---
+
+## 🛡️ How to Handle Databases with Cloud Run
+In a real production environment, you separate your computing layer from your storage layer entirely:
+
+   1. Stateless App (Cloud Run): Your application container runs inside Cloud Run. It handles incoming web traffic, processes logic, and routes API requests. It can scale up to thousands of instances or down to zero instantly.
+   2. Persistent Storage (Cloud SQL / AlloyDB): Your database runs as a separate managed service. This is where your WAL logs live, where MVCC handles data versions, and where records are securely flushed to persistent disks.
+   3. The Connection: Cloud Run connects securely to your database using the Cloud SQL Auth Proxy (built directly into Cloud Run settings) or via a private VPC connection.
+
+This gives you the absolute best of both worlds: your application can auto-scale instantly with zero server management, but your data is entirely safe from being erased when those containers shut down.
 
 ---
 
