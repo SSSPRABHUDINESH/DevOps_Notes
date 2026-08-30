@@ -663,23 +663,24 @@ Cloud Run needs permission to talk to the database. You do this by granting the 
 ## Step 2: Enable the Connection in Cloud Run
 When deploying your container via the CLI (gcloud) or Terraform, you pass the database's unique Connection Name (found on your Cloud SQL overview page).
 
+```
 gcloud run deploy my-web-app \
   --image=gcr.io/my-project/my-app:v1 \
   --add-cloudsql-instances=my-project:us-central1:my-database \
   --update-env-vars=DB_USER="db_user",DB_NAME="production_db"
-
+```
 (Note: To keep your actual database password secure, you should inject it as an environment variable sourced directly from GCP Secret Manager rather than plain text).
 ## Step 3: Configure Your Application Code
 Your application code doesn't need any special cloud libraries; it just uses standard database drivers (like pg for PostgreSQL or mysql2 for MySQL). You configure it to look for a Unix Socket instead of a host IP.
 Here is what a connection string looks like in Node.js/Python:
-
+```
 # PostgreSQL Python Example using a Unix Socketdb_config = {
     "user": "db_user",
     "password": "my-secret-password-from-secret-manager",
     "database": "production_db",
     "host": "/cloudsql/my-project:us-central1:my-database" # The socket path created by Cloud Run
 }
-
+```
 
 ---
 
