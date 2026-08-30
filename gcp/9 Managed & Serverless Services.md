@@ -711,6 +711,9 @@ To use a **Global External Application Load Balancer** with Cloud Run, connect t
 
 ```
 
+A Serverless Network Endpoint Group (NEG) acts as a bridge that allows you to connect a Google Cloud Load Balancer directly to a serverless backend, such as Cloud Run, App Engine, or Cloud Functions.
+1. Cloud Armor (WAF) Protection: You can attach Google Cloud Armor to the load balancer to protect your serverless app from DDoS attacks, block malicious payloads (like SQL injection or XSS), and enforce IP whitelisting or rate limiting.
+
 ```bash
 # 1. Create Serverless NEG
 gcloud compute network-endpoint-groups create order-neg \
