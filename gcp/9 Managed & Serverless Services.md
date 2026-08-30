@@ -352,6 +352,7 @@ Here is exactly how it manages traffic detection and graceful shutdowns.
 When a Cloud Run service is idle, it scales down to 0 instances to save you money. There are no pods running. So how does it catch an incoming request?
 It uses a specialized Knative component called the Activator.
 
+```
 [ User Request ] ──> [ Ingress / Knative Kourier ]
                             │
               (Are instances running?)
@@ -362,7 +363,7 @@ It uses a specialized Knative component called the Activator.
                                        ├── 2. Signals Pod Autoscaler (KPA) to spin up pod
                                        └── 3. Forwards buffered request once pod is healthy
 
-
+```
    1. The Request Enters: A user hits your Cloud Run URL. The ingress gateway checks the routing table and sees that your service has 0 active instances.
    2. The Activator Intercepts: The ingress routes the traffic to the Knative Activator pod (a highly optimized shared routing component that is always on).
    3. Buffering and Scaling: The Activator holds the user's HTTP request in its buffer memory so it doesn't drop or return a 404. Simultaneously, it fires an urgent metric to the KPA (Knative Pod Autoscaler) saying: "We need an instance immediately."
