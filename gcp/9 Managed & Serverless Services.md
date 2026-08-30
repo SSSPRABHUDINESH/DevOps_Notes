@@ -346,7 +346,12 @@ To help tie this back to your earlier questions about WAL logs, flushing, and SI
 
 ------------------------------
 ## Part 2: Deep Dive into Knative (Scale-to-Zero and SIGTERM)
-As a Cloud and DevOps engineer, this is where Knative's internal components get incredibly interesting. Knative is split into two primary parts: Knative Serving (which handles lifecycle and traffic) and Knative Eventing.
+As a Cloud and DevOps engineer, this is where Knative's internal components get incredibly interesting. 
+
+Knative is split into two primary parts: 
+1. Knative Serving (which handles lifecycle and traffic)
+2. Knative Eventing.
+
 Here is exactly how it manages traffic detection and graceful shutdowns.
 ## 1. How Knative Detects Traffic to Spin Up From Zero
 When a Cloud Run service is idle, it scales down to 0 instances to save you money. There are no pods running. So how does it catch an incoming request?
