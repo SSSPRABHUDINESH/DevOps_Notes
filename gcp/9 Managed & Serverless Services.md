@@ -652,12 +652,12 @@ When you connect a stateless frontend (Cloud Run) to a persistent database (like
 Google solves this by baking a built-in helper called the Cloud SQL Auth Proxy directly into Cloud Run.
 ## How it Works Behind the Scenes
 Instead of your application connecting to a remote public IP address over the internet, Cloud Run runs a hidden secure sidecar proxy right next to your container. Your app simply talks to a local Unix socket or localhost. The proxy automatically intercepts that traffic, encrypts it using mutual TLS (mTLS), and tunnels it securely straight into your database.
-
+```
 [ Cloud Run Instance ]
   |-- (Your App Container) 
   |     └── Connects locally to: /cloudsql/your-project:region:db-instance
   |-- (Built-in Auth Proxy Sidecar) <--- mTLS Encrypted Tunnel ---> [ Cloud SQL Database ]
-
+```
 ## Step-by-Step Configuration Example## Step 1: Grant Permissions (IAM)
 Cloud Run needs permission to talk to the database. You do this by granting the Cloud SQL Client (roles/cloudsql.client) role to the Service Account that runs your Cloud Run service.
 ## Step 2: Enable the Connection in Cloud Run
