@@ -860,6 +860,9 @@ In Google Cloud, **Cloud Functions (2nd gen)** is built directly on top of **Clo
 
 ```
 
+- Eventarc is a fully managed, serverless event-routing service on Google Cloud that lets you build event-driven architectures without having to manage the underlying infrastructure.
+    - It acts as the central nervous system for your applications, allowing different microservices and systems to communicate asynchronously by sending and reacting to "events" (state changes).
+
 ---
 
 ### 🔹 Detailed Comparison: Gen 1 Sandboxes vs Gen 2 Engine
