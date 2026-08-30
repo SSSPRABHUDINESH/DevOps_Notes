@@ -1398,6 +1398,16 @@ App Engine allows gradual traffic splitting across active versions:
 
 ---
 
+**Comparison Overview**
+
+| Feature | [Cloud Run](https://github.com/SSSPRABHUDINESH/DevOps_Notes/blob/main/gcp/9%20Managed%20&%20Serverless%20Services.md#-827-comprehensive-serverless-comparison-matrix) | App Engine (Standard) | App Engine (Flexible) |
+| --- | --- | --- | --- |
+| **Packaging** | Custom Dockerfile (Standard OCI Container) | Raw Code + `app.yaml` | Custom Dockerfile |
+| **Underlying Engine** | Fully Serverless Knative / Borg | Google's Proprietary Sandbox | Provisioned Compute Engine VMs |
+| **Runtime Control** | Unlimited (Any language, OS package, or binary) | Restricted to Google-supported languages | Unlimited |
+| **Scale-to-Zero** | Yes (Scales down instantly, $0 idle cost) | Yes | **No** (Minimum 1 VM running 24/7) |
+| **Cold Starts** | Milliseconds | Milliseconds | 3–10 Minutes (Must boot a VM) |
+
 ### 🔹 Decision Flowchart: Selecting Compute
 
 ```
