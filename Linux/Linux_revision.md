@@ -1068,12 +1068,27 @@ Once you have configured PostgreSQL and opened the firewalls, you can verify it 
 nc -zv [YOUR_VM_PUBLIC_IP] 5433
 ```
 
-* Success looks like: Connection to [IP] port 5433 [tcp] succeeded!
-* Failure (blocked port) looks like: Connection refused or it will just hang forever with a timeout.
+**or** 
+
+- Using cURL (Mac/Linux):
+```
+curl -v telnet://[YOUR_VM_PUBLIC_IP]:5433
+```
+/*(This uses curl's built-in telnet protocol to test the port connection).*/
+
+- Using PowerShell (Windows):
+```
+Test-NetConnection -ComputerName [YOUR_VM_PUBLIC_IP] -Port 5433
+```
+/*(A built-in modern Windows command that returns a clear TcpTestSucceeded : True if the port is open).*/
+
+
+* **Success looks like**: Connection to [IP] port 5433 [tcp] succeeded!
+* **Failure (blocked port) looks like**: Connection refused or it will just hang forever with a timeout.
 ------------------------------
 ## ⚠️ A Crucial Security Warning
-Never open a port to the entire internet (0.0.0.0/0) unless absolutely necessary.
-Automated bots constantly scan the internet for newly opened ports. If you open a port for a database or an administrative tool, restrict the Source IP in your cloud firewall settings to your own personal computer's public IP address. This ensures that only you can walk through that open door.
+- Never open a port to the entire internet (0.0.0.0/0) unless absolutely necessary.
+- Automated bots constantly scan the internet for newly opened ports. If you open a port for a database or an administrative tool, restrict the Source IP in your cloud firewall settings to your own personal computer's public IP address. This ensures that only you can walk through that open door.
 
 ---
 
