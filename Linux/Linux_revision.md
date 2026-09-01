@@ -1,132 +1,3 @@
-No, it is not mandatory to use port 5432. You can run PostgreSQL on almost any port number you choose.
-Port 5432 is simply the standard default port assigned to PostgreSQL by global internet registries so that tools and developers know where to look by default.
-------------------------------
-## 🛑 The Constraints: What ports can you use?
-You can pick any number from 1 to 65535, with two main rules:
-
-   1. Ports 1 to 1023 (Privileged Ports): Avoid these. They are reserved for core system services (like HTTP on 80 or SSH on 22). Running PostgreSQL here requires root system privileges, which is a major security risk.
-   2. Ports 1024 to 65535 (User Ports): You can freely use any of these, provided another application on your cloud VM isn't already using that exact same number. Custom PostgreSQL deployments often use numbers like 5433, 8432, or 9000.
-
-------------------------------
-## 🛠️ How to Change the Port (2 Steps)
-If you change the port on your cloud VM, you must update it in two places:
-## Step 1: Tell PostgreSQL to change its port
-You must update the main PostgreSQL configuration file on your server (usually located at /etc/postgresql/[version]/main/postgresql.conf).
-
-# Inside postgresql.conf
-port = 5433   # Change this from 5432 to your new port
-
-After saving, you must restart the database service (sudo systemctl restart postgresql).
-## Step 2: Update your Cloud Security Group / Firewall
-Cloud providers (like AWS, Google Cloud, or Azure) block all incoming traffic by default.
-
-* If you change the database port to 5433, your old firewall rule for 5432 will stop working.
-* You must go to your cloud provider's web console and edit your Security Group / Inbound Rules to allow traffic on your new custom port (5433).
-
-------------------------------
-## 💡 Why would someone change the default port?
-
-* Security through Obscurity: Changing the port stops automated hacker bots that scan the internet specifically for open 5432 ports to attack.
-* Running Multiple Databases: If you need to run two completely separate PostgreSQL instances on the exact same cloud VM, one will use 5432 and the second one can use 5433.
-
-If you'd like, let me know:
-
-* Which cloud provider (AWS, Azure, GCP, etc.) are you using?
-* Do you want the exact command to check if your new port is open and listening?
-
-You must open it first before your application can successfully use it over the internet.
-If you try to connect to a new port without opening it, your cloud firewall will block the traffic before it ever reaches your PostgreSQL database.
-Think of it like a secure apartment building: changing the port inside PostgreSQL is like changing your apartment number, but you still need the front desk security guard (the cloud firewall) to let visitors into that new room.
-------------------------------
-## 🗺️ The 2-Step Checklist to Use a Custom Port
-To make your database accessible, you must open the port in two separate layers:
-## Layer 1: The Cloud Firewall (Outside the VM)
-Your cloud provider (AWS, Azure, Google Cloud, DigitalOcean) wraps your VM in an external network firewall.
-
-* You must log into your cloud provider's web console.
-* Go to your VM's Security Group, Network Security Rules, or Firewall settings.
-* Add an Inbound Rule:
-* Protocol: TCP
-   * Port: Your custom port number (e.g., 5433)
-   * Source: Your local IP address (best for security) or 0.0.0.0/0 (anywhere, less secure).
-
-## Layer 2: The OS Firewall (Inside the VM)
-Most modern Linux distributions run an internal software firewall. You must tell the operating system to allow traffic through to your new port.
-
-* For Ubuntu / Debian (using UFW):
-
-sudo ufw allow 5433/tcp
-
-* For RHEL / Rocky Linux / CentOS (using firewalld):
-
-sudo firewall-cmd --permanent --add-port=5433/tcp
-sudo firewall-cmd --reload
-
-
-------------------------------
-## 🔍 How to Test If It Is Successfully Opened
-Once you have configured PostgreSQL and opened the firewalls, you can verify it is working from your local computer terminal using nc (Netcat) or telnet:
-
-nc -zv [YOUR_VM_PUBLIC_IP] 5433
-
-
-* Success looks like: Connection to [IP] port 5433 [tcp] succeeded!
-* Failure (blocked port) looks like: Connection refused or it will just hang forever with a timeout.
-
-If you'd like, let me know:
-
-* Which cloud provider console are you navigating right now?
-* What operating system (Ubuntu, CentOS, etc.) is running inside your VM?
-
-
-
-
----
-
-
-
-“Opening a port” means configuring a firewall or security system to allow incoming internet traffic through a specific communication channel (the port) to reach an application running on your computer or server.
-By default, modern operating systems and cloud providers block almost all ports to protect you from hackers. An unopened port acts like a locked door—traffic hits it and gets completely ignored. Opening the port unlocks that door.
-------------------------------
-## 🛠️ How to Open an Unused Port
-Opening an unused port requires two phases: binding an application to it so it is active, and allowing traffic through your firewalls.
-## Phase 1: Make an application "Listen" on that port
-A port cannot actually be "open" to the public if no software is using it. If a port is completely unused, network packets will just bounce off. You must configure your app (like PostgreSQL, Node.js, or Nginx) to bind to that port number.
-To verify your application is successfully listening on the port inside your machine, run:
-
-sudo ss -lntp
-
-## Phase 2: Allow the traffic through your Firewalls
-Once your application is ready to receive traffic, you must grant permission through your firewalls.
-## 1. Inside the Linux Server (OS Level)
-If you are using Ubuntu, use the Uncomplicated Firewall (ufw). Replace 5433 with your unused port number:
-
-sudo ufw allow 5433/tcp
-
-If you are using RHEL / Rocky Linux / CentOS, use firewalld:
-
-sudo firewall-cmd --permanent --add-port=5433/tcp
-sudo firewall-cmd --reload
-
-## 2. In your Cloud Provider Console (Network Level)
-If your machine is a cloud VM (AWS, Azure, GCP), the internal OS command is not enough. You must also open the cloud portal:
-
-   1. Log into your cloud management console.
-   2. Navigate to your virtual machine's Network settings or Security Groups.
-   3. Create a new Inbound Security Rule.
-   4. Set the Protocol to TCP, enter your Port Number, and save changes.
-
-------------------------------
-## ⚠️ A Crucial Security Warning
-Never open a port to the entire internet (0.0.0.0/0) unless absolutely necessary.
-Automated bots constantly scan the internet for newly opened ports. If you open a port for a database or an administrative tool, restrict the Source IP in your cloud firewall settings to your own personal computer's public IP address. This ensures that only you can walk through that open door.
-If you are interested, let me know:
-
-* What specific application are you trying to route traffic to?
-* Do you need help finding your own public IP to whitelist it securely?
-
-
-
 ---
 # 📖 Module 1: Linux Filesystem Hierarchy & Advanced Permissions
 
@@ -1138,6 +1009,71 @@ Network ports are 16-bit numbers ($0$ to $65535$) identifying specific communica
 └──────┴──────────┴───────────────────────────────────────────┘
 
 ```
+
+## Is it mandatory to use the default `port`:
+
+No, it is not mandatory to use port 5432. You can run PostgreSQL on almost any port number you choose.
+Port 5432 is simply the standard default port assigned to PostgreSQL by global internet registries so that tools and developers know where to look by default.
+------------------------------
+## 🛑 The Constraints: What ports can you use?
+You can pick any number from 1 to 65535, with two main rules:
+
+   1. Ports 1 to 1023 (Privileged Ports): Avoid these. They are reserved for core system services (like HTTP on 80 or SSH on 22). Running PostgreSQL here requires root system privileges, which is a major security risk.
+   2. Ports 1024 to 65535 (User Ports): You can freely use any of these, provided another application on your cloud VM isn't already using that exact same number. Custom PostgreSQL deployments often use numbers like 5433, 8432, or 9000.
+
+---
+
+### What is meant by Opening a PORT ?
+
+- “Opening a port” means configuring a `firewall` or security system to `allow` incoming internet traffic through a specific communication channel (the port) to reach an application running on your computer or server.
+- By default, modern operating systems and cloud providers block almost all ports to protect you from hackers. 
+- An unopened port acts like a locked door—traffic hits it and gets completely ignored. Opening the port unlocks that door.
+---
+
+## 🛠️ How to Open an Unused Port
+Opening an unused port requires two phases: binding an application to it so it is active, and allowing traffic through your firewalls.
+## Phase 1: Make an application "Listen" on that port
+A port cannot actually be "open" to the public if no software is using it. If a port is completely unused, network packets will just bounce off. You must configure your app (like PostgreSQL, Node.js, or Nginx) to bind to that port number.
+To verify your application is successfully listening on the port inside your machine, run:
+```
+sudo ss -lntp
+```
+## Layer 1: The Cloud Firewall (Outside the VM)
+Your cloud provider (AWS, Azure, Google Cloud, DigitalOcean) wraps your VM in an external network firewall.
+
+* You must log into your cloud provider's web console.
+* Go to your VM's Security Group, Network Security Rules, or Firewall settings.
+* Add an Inbound Rule:
+* Protocol: TCP
+   * Port: Your custom port number (e.g., 5433)
+   * Source: Your local IP address (best for security) or 0.0.0.0/0 (anywhere, less secure).
+
+## Layer 2: The OS Firewall (Inside the VM)
+Most modern Linux distributions run an internal software firewall. You must tell the operating system to allow traffic through to your new port.
+
+* For Ubuntu / Debian (using UFW):
+```
+sudo ufw allow 5433/tcp
+```
+* For RHEL / Rocky Linux / CentOS (using firewalld):
+```
+sudo firewall-cmd --permanent --add-port=5433/tcp
+sudo firewall-cmd --reload
+```
+
+------------------------------
+## 🔍 How to Test If It Is Successfully Opened
+Once you have configured PostgreSQL and opened the firewalls, you can verify it is working from your local computer terminal using nc (Netcat) or telnet:
+```
+nc -zv [YOUR_VM_PUBLIC_IP] 5433
+```
+
+* Success looks like: Connection to [IP] port 5433 [tcp] succeeded!
+* Failure (blocked port) looks like: Connection refused or it will just hang forever with a timeout.
+------------------------------
+## ⚠️ A Crucial Security Warning
+Never open a port to the entire internet (0.0.0.0/0) unless absolutely necessary.
+Automated bots constantly scan the internet for newly opened ports. If you open a port for a database or an administrative tool, restrict the Source IP in your cloud firewall settings to your own personal computer's public IP address. This ensures that only you can walk through that open door.
 
 ---
 
