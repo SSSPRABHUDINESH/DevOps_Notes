@@ -449,6 +449,43 @@ cat /var/log/nginx/access.log \
 
 ---
 
-Let's test this with a quick scenario before we move to **Module 2: Process Lifecycle & Services**:
+## INTERVIEW QUESTIONS:
 
-Suppose a shared team directory has permissions set to `drwxrwxrwx` without the Sticky bit. What risk does this create when multiple users collaborate in that directory?
+1. I have a **nginx webserver**, I want to make some traffic to it. What command I can run?
+
+Ans:
+**Basic Continuous Requests (No Installation Required)**
+Use a standard `while` loop with `curl` to continuously hit your server. The `-s` flag silences the progress meter, and redirecting the output to `/dev/null` discards the downloaded HTML to prevent terminal spam.
+
+```bash
+while true; do curl -s -o /dev/null http://<your-server-ip>/; sleep 1; done
+
+```
+
+- The web server will see this as the exact same user hitting the IP repeatedly.
+
+*(Remove `sleep 1` if you want to hammer the server as fast as your single CPU thread allows).*
+
+**Concurrent Traffic Generation (Apache Benchmark)**
+To simulate multiple users hitting the server at the exact same time, use `ab`.
+
+```bash
+# Install on Ubuntu/Debian: sudo apt install apache2-utils
+ab -n 10000 -c 100 http://<your-server-ip>/
+
+```
+
+* **`-n 10000`**: Total number of requests to send.
+* **`-c 100`**: Number of concurrent connections to keep open at once.
+
+**Sustained Traffic Over Time (Siege)**
+If you want to simulate a steady stream of traffic for a specific duration rather than a fixed number of requests, `siege` is ideal.
+
+```bash
+# Install on Ubuntu/Debian: sudo apt install siege
+siege -c 50 -t 2M http://<your-server-ip>/
+
+```
+
+* **`-c 50`**: Simulates 50 concurrent users.
+* **`-t 2M`**: Runs the traffic generator continuously for 2 minutes.
