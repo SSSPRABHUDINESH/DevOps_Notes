@@ -1197,7 +1197,17 @@ sudo iotop -oPa
 
 ## 🛡️ 4. Resource Limits (`ulimit` & `/etc/security/limits.conf`)
 
-Linux enforces limits on system resources to prevent a single buggy or malicious process from exhausting file descriptors, memory, or process tables.
+`ulimit` (short for "user limit") is a built-in Linux command that acts as a safety governor, restricting exactly how much of a system's resources a single user or program can consume. Think of it as a corporate expense account to prevent one greedy application from bankrupting the whole server.
+
+**Why it Exists**
+Without boundaries, a buggy script or a malicious process could easily open thousands of files or eat up all available memory, starving out critical system services and crashing the entire machine.
+
+**What it Controls**
+System administrators use it to cap various resources, most commonly:
+
+* **Open Files (`ulimit -n`):** Prevents a web server or database from opening so many simultaneous connections that the OS runs out of file descriptors.
+* **Max Processes (`ulimit -u`):** Stops a user from spawning endless background tasks (like a "fork bomb" attack that locks up the CPU).
+* **Memory & File Size:** Restricts how large a single log file can grow or how much RAM a single process can hoard.
 
 ### 🔹 Soft Limits vs. Hard Limits
 
