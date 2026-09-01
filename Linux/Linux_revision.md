@@ -1046,7 +1046,7 @@ Your cloud provider (AWS, Azure, Google Cloud, DigitalOcean) wraps your VM in an
 * Add an Inbound Rule:
 * Protocol: TCP
    * Port: Your custom port number (e.g., 5433)
-   * Source: Your local IP address (best for security) or 0.0.0.0/0 (anywhere, less secure).
+   * Source: Your local IP address (best for security) or 0.0.0.0/0 (anywhere, less secure) - This is also called as **Whitelisting**.
 
 ## Layer 2: The OS Firewall (Inside the VM)
 Most modern Linux distributions run an internal software firewall. You must tell the operating system to allow traffic through to your new port.
