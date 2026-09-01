@@ -1,236 +1,3 @@
-1. What is FSTAB?
-
-The fstab (File System Table) file is a system configuration file in Linux located at /etc/fstab. Its sole job is to tell the operating system how to automatically mount disk partitions, USB drives, or network shares during bootup.
-
-
-2. Do i need to restart system to load automatically?
-
-No, you do not need to restart your system.
-Restarting a running Linux server or computer just to mount a hard drive is completely unnecessary and causes unneeded downtime.
-Once you add your new disks to the /etc/fstab file, you can tell the system to immediately read the changes and mount the disks in real-time by using one specific command.
-------------------------------
-## Step-by-Step: The "Next Steps" Workflow
-Follow this precise sequence to safely activate your new mounts without a reboot.
-## Step 1: Run the Safety Check (Crucial)
-Before telling the system to execute your new configuration, verify that you didn't make any syntax errors or typos in your /etc/fstab text. Run this command:
-
-sudo findmnt --verify
-
-
-* What it does: It scans your fstab file and alerts you if there are missing directories, misspelled options, or invalid UUID numbers. If it flags any errors, fix them before moving to Step 2.
-
-## Step 2: Ensure the Target Folders Exist
-Linux cannot mount a disk to a folder that does not exist. If you configured a mount point like /mnt/my_new_backup in your fstab, make sure you have created that folder:
-
-sudo mkdir -p /mnt/my_new_backup
-
-## Step 3: Trigger the Auto-Mount (The Magic Command)
-Now, tell Linux to read the /etc/fstab file and instantly mount everything listed inside it that isn't already mounted:
-
-sudo mount -a
-
-
-* What it does: The -a flag stands for all. It acts exactly like the boot process, automatically mounting all disks declared in your fstab configuration instantly.
-
-## Step 4: Verify Success
-Check if your disks are successfully attached and ready to use by running:
-
-df -h
-
-You should see your newly added disks, their total storage capacities, and their assigned paths listed in the terminal output.
-------------------------------
-## What happens if you skip mount -a?
-If you simply save the /etc/fstab file and do nothing else, nothing changes immediately. Your system will continue running without the disks mounted. However, the next time the computer naturally restarts or loses power, it will successfully mount those disks on its own during the boot cycle.
-To help you get this set up correctly right now, do you want to verify your disk's UUID string using the blkid command, or would you like me to look over the exact line you plan to copy into your fstab to double-check its formatting?
-
-
-
----
-
-1. logrotate:
-
-These configuration files are stored directly on your Linux server's hard drive in specific system directories.
-## File Structure for Logrotate
-Here is the complete file structure showing exactly where logrotate keeps its main configuration, application rules, active log files, and status history:
-
-/ (Root Directory)
-├── etc/                            # System configuration files
-│   ├── logrotate.conf              # ⚙️ MAIN configuration file (sets system-wide defaults)
-│   └── logrotate.d/                # 📁 APPLICATION rules folder (individual service configs)
-│       ├── nginx                   # The Nginx config rules you shared
-│       ├── apache2                 # Apache web server rules
-│       └── rsyslog                 # System logging rules
-│
-├── var/                            # Variable data files (frequently changing data)
-│   ├── log/                        # 📄 LOG STORAGE directory
-│   │   ├── nginx/                  # Folder where Nginx writes active logs
-│   │   │   ├── access.log          # Active log file being written to right now
-│   │   │   ├── access.log.1        # Yesterday's log (not compressed yet)
-│   │   │   ├── access.log.2.gz     # Log from 2 days ago (compressed)
-│   │   │   └── access.log.3.gz     # Log from 3 days ago (compressed)
-│   │   ├── syslog                  # Main system log
-│   │   └── auth.log                # Security and login log
-│   │
-│   └── lib/                        # State information
-│       └── logrotate/
-│           └── status              # 🕒 Logrotate history file (tracks when it last ran)
-
-## How It Works Together
-
-   1. The System Trigger: Once a day, the system automatically runs the logrotate program.
-   2. The Rules Check: logrotate reads the global defaults in /etc/logrotate.conf and then pulls in all the specific application files inside /etc/logrotate.d/ (like your nginx file).
-   3. The Action: It looks inside /var/log/nginx/ to see if the files need rotating, zipping, or deleting.
-   4. The Memory: It records the date and time of this action in /var/lib/logrotate/status so it knows when 24 hours have passed.
-
-If you are interested, I can show you:
-
-* What a complete global /etc/logrotate.conf file looks like
-* How to add a completely new rule to the /etc/logrotate.d/ folder
-
----
-sample contents inside those files
-
-Here are realistic, standard examples of what you will find inside these configuration files on a typical Linux server.
-## 1. Main Configuration File (/etc/logrotate.conf)
-This file sets the global defaults. If an individual app configuration (like Nginx) does not specify a rule, it inherits these default settings.
-
-# Global defaults for logrotate
-
-# Rotate log files weekly by default
-weekly
-
-# Keep 4 weeks worth of backlogs
-rotate 4
-
-# Create new (empty) log files after rotating old ones
-create
-
-# Use date extensions (like filename.log-20260901) instead of numbers
-#dateext
-
-# Compress log files using gzip
-compress
-
-# Packages drop log rotation information into this directory
-include /etc/logrotate.d
-
-# No packages own wtmp and btmp -- we'll rotate them here
-/var/log/wtmp {
-    missingok
-    monthly
-    create 0664 root utmp
-    rotate 1
-}
-
-/var/log/btmp {
-    missingok
-    monthly
-    create 0600 root utmp
-    rotate 1
-}
-
-------------------------------
-## 2. Nginx Rule File (/etc/logrotate.d/nginx)
-This file overrides global defaults to handle the high volume of traffic logs generated by a web server.
-
-/var/log/nginx/*.log {
-        daily
-        missingok
-        rotate 14
-        compress
-        delaycompress
-        notifempty
-        create 0640 www-data adm
-        sharedscripts
-        postrotate
-                if [ -f /var/run/nginx.pid ]; then
-                        kill -USR1 `cat /var/run/nginx.pid`
-                fi
-        endscript
-}
-
-(Note: The kill -USR1 command tells Nginx to seamlessly close the old log file and open the newly created empty one without dropping any web traffic).
-------------------------------
-## 3. System Logging Rule File (/etc/logrotate.d/rsyslog)
-This file manages core operating system logs (like system events, mail, and security logs). It groups multiple log paths together.
-
-/var/log/syslog
-/var/log/mail.log
-/var/log/cron.log
-/var/log/auth.log
-/var/log/kern.log
-{
-        rotate 7
-        daily
-        missingok
-        notifempty
-        delaycompress
-        compress
-        postrotate
-                /usr/lib/rsyslog/rsyslog-rotate
-        endscript
-}
-
-If you would like to move forward, let me know if I should:
-
-* Explain what individual lines like kill -USR1 or rsyslog-rotate do
-* Help you test these files for syntax errors using the command line
-
----
-
-
-Here are realistic, standard examples of what you will find inside the /etc/hosts and /etc/resolv.conf files on a Linux machine.
-Both files handle domain name translation, but they do it in completely different ways.
-------------------------------
-## 1. Local Domain Mapping (/etc/hosts)
-This file is your computer's private, local phone book. Before your system asks the internet to find a website, it checks this file first. It maps specific IP addresses to hostnames manually.
-
-# Loopback addresses (Internal machine communications)
-127.0.0.1       localhost
-::1             localhost ip6-localhost ip6-loopback
-
-# Custom local network mappings (Handy for development)
-192.168.1.50    my-nas-storage
-10.0.0.15       staging.testserver.local
-
-# Blocking a distractive website by pointing it to nowhere
-127.0.0.1       badwebsite.com
-
-------------------------------
-## 2. DNS Server Configuration (/etc/resolv.conf)
-This file tells your system where the actual internet phone books (DNS servers) live. When you type google.com, your system reads this file to figure out which external server it should ask for the IP address.
-
-# Generated by NetworkManager (Do not edit by hand on modern systems)
-
-# The local domain search path
-search home.network localdomain
-
-# Primary DNS Server (Cloudflare public DNS)
-nameserver 1.1.1.1
-
-# Secondary DNS Server (Google public DNS)
-nameserver 8.8.8.8
-
-# Backup DNS Server (Your local router)
-nameserver 192.168.1.1
-
-# Performance options
-options timeout:2 attempts:3
-
-(Note: The options line tells the system to wait a maximum of 2 seconds for a reply from a DNS server, and to try up to 3 times before giving up).
-------------------------------
-If you are dealing with a connectivity issue, let me know:
-
-* Are you trying to block a specific website locally?
-* Is your server unable to resolve internet domains (e.g., getting a "Temporary failure in name resolution" error)?
-
-
-
-
-
-EOD
---------
-
 # 📖 Module 1: Linux Filesystem Hierarchy & Advanced Permissions
 
 ---
@@ -834,6 +601,60 @@ sudo mount -a
 
 ```
 
+## What is FSTAB?
+
+The fstab (File System Table) file is a system configuration file in Linux located at `/etc/fstab`. Its sole job is to tell the operating system how to automatically mount disk partitions, USB drives, or network shares during bootup.
+
+---
+
+## Do i need to restart the system to load automatically?
+
+No, you do not need to restart your system.
+Restarting a running Linux server or computer just to mount a hard drive is completely unnecessary and causes unneeded downtime.
+Once you add your new disks to the `/etc/fstab` file, you can tell the system to immediately read the changes and mount the disks in real-time by using one specific command.
+
+## Step-by-Step: The "Next Steps" Workflow
+Follow this precise sequence to safely activate your new mounts without a reboot.
+## Step 1: Run the Safety Check (Crucial)
+Before telling the system to execute your new configuration, verify that you didn't make any syntax errors or typos in your `/etc/fstab` text. Run this command:
+
+```
+sudo findmnt --verify
+```
+
+* What it does: It scans your fstab file and alerts you if there are missing directories, misspelled options, or invalid UUID numbers. If it flags any errors, fix them before moving to Step 2.
+
+## Step 2: Ensure the Target Folders Exist
+Linux cannot mount a disk to a folder that does not exist. If you configured a mount point like `/mnt/my_new_backup` in your fstab, make sure you have created that folder:
+
+```
+sudo mkdir -p /mnt/my_new_backup
+```
+
+## Step 3: Trigger the Auto-Mount (The Magic Command)
+Now, tell Linux to read the `/etc/fstab` file and instantly mount everything listed inside it that isn't already mounted:
+
+```
+sudo mount -a
+```
+
+* What it does: The -a flag stands for all. It acts exactly like the boot process, automatically mounting all disks declared in your fstab configuration instantly.
+
+## Step 4: Verify Success
+Check if your disks are successfully attached and ready to use by running:
+```
+df -h
+```
+
+You should see your newly added disks, their total storage capacities, and their assigned paths listed in the terminal output.
+
+---
+
+## What happens if you skip mount -a?
+- If you simply save the `/etc/fstab` file and do nothing else, nothing changes immediately. Your system will continue running without the disks mounted. However, the next time the computer naturally restarts or loses power, it will successfully mount those disks on its own during the boot cycle.
+- To help you get this set up correctly right now, do you want to verify your disk's UUID string using the blkid command, or would you like me to look over the exact line you plan to copy into your fstab to double-check its formatting?
+
+
 ---
 
 ## 📜 5. Log Files & Log Rotation (`logrotate`)
@@ -871,6 +692,116 @@ sudo logrotate -f /etc/logrotate.d/nginx
 
 ```
 
+## File Structure for Logrotate
+Here is the complete file structure showing exactly where logrotate keeps its main configuration, application rules, active log files, and status history:
+```
+/ (Root Directory)
+├── etc/                            # System configuration files
+│   ├── logrotate.conf              # ⚙️ MAIN configuration file (sets system-wide defaults)
+│   └── logrotate.d/                # 📁 APPLICATION rules folder (individual service configs)
+│       ├── nginx                   # The Nginx config rules you shared
+│       ├── apache2                 # Apache web server rules
+│       └── rsyslog                 # System logging rules
+│
+├── var/                            # Variable data files (frequently changing data)
+│   ├── log/                        # 📄 LOG STORAGE directory
+│   │   ├── nginx/                  # Folder where Nginx writes active logs
+│   │   │   ├── access.log          # Active log file being written to right now
+│   │   │   ├── access.log.1        # Yesterday's log (not compressed yet)
+│   │   │   ├── access.log.2.gz     # Log from 2 days ago (compressed)
+│   │   │   └── access.log.3.gz     # Log from 3 days ago (compressed)
+│   │   ├── syslog                  # Main system log
+│   │   └── auth.log                # Security and login log
+│   │
+│   └── lib/                        # State information
+│       └── logrotate/
+│           └── status              # 🕒 Logrotate history file (tracks when it last ran)
+```
+
+---
+## Sample contents inside those files
+
+## 1. Main Configuration File (/etc/logrotate.conf)
+This file sets the global defaults. If an individual app configuration (like Nginx) does not specify a rule, it inherits these default settings.
+```
+# Global defaults for logrotate
+
+# Rotate log files weekly by default
+weekly
+
+# Keep 4 weeks worth of backlogs
+rotate 4
+
+# Create new (empty) log files after rotating old ones
+create
+
+# Use date extensions (like filename.log-20260901) instead of numbers
+#dateext
+
+# Compress log files using gzip
+compress
+
+# Packages drop log rotation information into this directory
+include /etc/logrotate.d
+
+# No packages own wtmp and btmp -- we'll rotate them here
+/var/log/wtmp {
+    missingok
+    monthly
+    create 0664 root utmp
+    rotate 1
+}
+
+/var/log/btmp {
+    missingok
+    monthly
+    create 0600 root utmp
+    rotate 1
+}
+```
+---
+## 2. Nginx Rule File (/etc/logrotate.d/nginx)
+This file overrides global defaults to handle the high volume of traffic logs generated by a web server.
+```
+/var/log/nginx/*.log {
+        daily
+        missingok
+        rotate 14
+        compress
+        delaycompress
+        notifempty
+        create 0640 www-data adm
+        sharedscripts
+        postrotate
+                if [ -f /var/run/nginx.pid ]; then
+                        kill -USR1 `cat /var/run/nginx.pid`
+                fi
+        endscript
+}
+```
+(Note: The kill -USR1 command tells Nginx to seamlessly close the old log file and open the newly created empty one without dropping any web traffic).
+
+---
+## 3. System Logging Rule File (/etc/logrotate.d/rsyslog)
+This file manages core operating system logs (like system events, mail, and security logs). It groups multiple log paths together.
+```
+/var/log/syslog
+/var/log/mail.log
+/var/log/cron.log
+/var/log/auth.log
+/var/log/kern.log
+{
+        rotate 7
+        daily
+        missingok
+        notifempty
+        delaycompress
+        compress
+        postrotate
+                /usr/lib/rsyslog/rsyslog-rotate
+        endscript
+}
+```
 ---
 
 # 📖 Module 5: Linux Networking & Port Management
@@ -887,12 +818,12 @@ The **`ip`** command (from the `iproute2` package) replaces legacy tools like `i
 | **`ip link`** 🔌 | View and modify the state of network interfaces | `sudo ip link set eth0 up` *(bring interface up)* |
 | **`ip route`** (or `ip r`) 🗺️ | View and manage the kernel routing table | `ip route show` *(check the default gateway)* |
 
-For external Ip: **curl ifconfig.me**
+For external Ip: **`curl ifconfig.me`**
 
 In windows machine:
 
-For internal ip: **ipconfig**
-For external Ip: **curl ifconfig.me**
+- For internal ip: **`ipconfig`**
+- For external Ip: **`curl ifconfig.me`**
 
 ### 🔹 Practical Examples
 
@@ -996,6 +927,44 @@ Domain Name System (DNS) translates human-friendly hostnames (e.g., `google.com`
 * **`/etc/hosts`** 📝: Local static mapping of hostnames to IP addresses (evaluated before DNS queries).
 * **`/etc/resolv.conf`** ⚙️: Configures nameserver IP addresses used for system DNS lookups.
 * **`/etc/nsswitch.conf`** 🔀: Defines the lookup order for name resolution (e.g., `hosts: files dns`).
+
+### Sample contents inside DNS files:
+
+## 1. Local Domain Mapping (/etc/hosts)
+This file is your computer's private, local phone book. Before your system asks the internet to find a website, it checks this file first. It maps specific IP addresses to hostnames manually.
+```
+# Loopback addresses (Internal machine communications)
+127.0.0.1       localhost
+::1             localhost ip6-localhost ip6-loopback
+
+# Custom local network mappings (Handy for development)
+192.168.1.50    my-nas-storage
+10.0.0.15       staging.testserver.local
+
+# Blocking a distractive website by pointing it to nowhere
+127.0.0.1       badwebsite.com
+```
+------------------------------
+## 2. DNS Server Configuration (/etc/resolv.conf)
+This file tells your system where the actual internet phone books (DNS servers) live. When you type google.com, your system reads this file to figure out which external server it should ask for the IP address.
+```
+# Generated by NetworkManager (Do not edit by hand on modern systems)
+
+# The local domain search path
+search home.network localdomain
+
+# Primary DNS Server (Cloudflare public DNS)
+nameserver 1.1.1.1
+
+# Secondary DNS Server (Google public DNS)
+nameserver 8.8.8.8
+
+# Backup DNS Server (Your local router)
+nameserver 192.168.1.1
+
+# Performance options
+options timeout:2 attempts:3
+```
 
 ### 🔹 DNS Query Tools
 
