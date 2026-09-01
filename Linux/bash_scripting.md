@@ -108,6 +108,14 @@ read -p "Enter environment name: " TARGET_ENV
 read -sp "Enter database password: " DB_PASS
 echo ""
 
+# Print the prompt without a trailing newline
+echo -n "Enter your service name: "
+
+# Read the input into the variable
+read SERVICE_NAME
+
+echo "You entered: $SERVICE_NAME"
+
 # Timeout after 10 seconds (-t)
 read -t 10 -p "Confirm deployment (y/n)? " CONFIRM
 
@@ -187,16 +195,16 @@ fi
 ACTION="$1"
 
 case "$ACTION" in
-    start|START)
+    (start|START)
         echo "Starting service..."
         ;;
-    stop)
+    (stop)
         echo "Stopping service..."
         ;;
-    restart|reload)
+    (restart|reload)
         echo "Restarting service..."
         ;;
-    *)
+    (*)
         echo "Usage: $0 {start|stop|restart}" >&2
         exit 1
         ;;
