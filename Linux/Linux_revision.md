@@ -193,9 +193,16 @@ pkill -15 -f "python main.py"
 
 1. `sudo systemctl enable --now nginx`
 
-If --now is not supported
+If `--now` is not supported
 1. `sudo systemctl start nginx`
 2. `sudo systemctl enable nginx`
+
+If you only run `sudo systemctl start nginx`:
+
+* **Right now:** Nginx will turn on immediately. Your web server will be active, and any websites you are hosting will work perfectly.
+* **The catch:** If your server ever restarts (due to a power outage, system updates, or a crash), Nginx will stay off. Your websites will remain offline until you manually log back in and run that exact same command again.
+
+Running only `start` is perfectly fine if you are just playing around or temporarily testing something. However, for a real website that needs to stay online 24/7, you want it to recover automatically after a reboot, which is why `enable` is necessary.
 
 
 ### 🔹 Anatomy of a Custom Systemd Unit File
