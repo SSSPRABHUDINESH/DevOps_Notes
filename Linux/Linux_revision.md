@@ -280,7 +280,12 @@ In Linux, every process is initialized with three default data streams, represen
 
 ### 🔹 The Black Hole: `/dev/null`
 
-`/dev/null` is a special virtual device that discards all data written to it.
+**`/dev/null`** is a special virtual device that discards all data written to it.
+
+**How it Works**
+
+* **Writing:** Any data sent to `/dev/null` is instantly destroyed. It takes up no disk space and saves no logs.
+* **Reading:** If a process attempts to read from it, it immediately returns an End-Of-File (EOF) signal, meaning it provides absolutely zero data.
 
 ```bash
 # Silence error messages only (send stderr to /dev/null)
