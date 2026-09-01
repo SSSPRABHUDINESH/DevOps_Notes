@@ -466,6 +466,16 @@ while true; do curl -s -o /dev/null http://<your-server-ip>/; sleep 1; done
 
 *(Remove `sleep 1` if you want to hammer the server as fast as your single CPU thread allows).*
 
+In bash, the **`;` (semicolon)** acts as a **command separator**. It allows you to execute multiple commands sequentially on a single line instead of pressing "Enter" after each one.
+
+* **`while true; do ... done`**: This creates an infinite loop. Because "true" is always true, the loop will run endlessly until you manually terminate it (usually by pressing `Ctrl + C`).
+* **`curl -s -o /dev/null http://<your-server-ip>/`**: This makes the actual web request to your server.
+* `-s` (silent) hides the download progress bar.
+* `-o /dev/null` throws away the downloaded webpage HTML so it doesn't flood your terminal with text.
+
+
+* **`sleep 1`**: Pauses the loop for exactly 1 second before starting the next iteration. This ensures you only send one request per second, rather than hammering the server as fast as your computer can process the loop.
+
 **Concurrent Traffic Generation (Apache Benchmark)**
 To simulate multiple users hitting the server at the exact same time, use `ab`.
 
