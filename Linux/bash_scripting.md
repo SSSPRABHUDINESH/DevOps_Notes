@@ -63,6 +63,21 @@ readonly ENVIRONMENT="production"
 TEMP_KEY="secret-123"
 unset TEMP_KEY
 
+# Local variables (must be inside a function)
+simulate_deployment() {
+    # This variable only exists inside this function
+    local temp_process_id=9945
+    local status="in-progress"
+    
+    echo "[Inside function] Process ID: ${temp_process_id} | Status: ${status}"
+}
+
+# Call the function
+simulate_deployment
+
+# Attempting to reference the local variable outside the function returns nothing
+echo "[Outside function] Process ID is empty: ${temp_process_id}"
+
 ```
 
 ### 🔹 Variable Scoping
