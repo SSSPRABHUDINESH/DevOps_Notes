@@ -189,6 +189,14 @@ pkill -15 -f "python main.py"
 └────────────────────────────────┴───────────────────────────────────────┘
 
 ```
+### I installed Nginx, then what should we do?
+
+1. `sudo systemctl enable --now nginx`
+
+If --now is not supported
+1. `sudo systemctl start nginx`
+2. `sudo systemctl enable nginx`
+
 
 ### 🔹 Anatomy of a Custom Systemd Unit File
 
