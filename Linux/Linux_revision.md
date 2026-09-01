@@ -881,6 +881,10 @@ The **`ss`** (Socket Statistics) command inspects network sockets and listening 
 
 ```
 
+**Realtime usecase:**
+
+- Running ss -lntp shows you exactly which processes (like 'Nginx' on port 80 or SSH on port 22) are actively listening for traffic, and what their Process IDs (PID) are.
+
 ### 🔹 Practical Port Inspection
 
 ```bash
