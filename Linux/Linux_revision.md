@@ -469,6 +469,511 @@ cat /var/log/nginx/access.log \
 
 ---
 
+# 📖 Module 4: Linux Filesystem Operations, Inodes & Storage Management
+
+---
+
+## 💽 1. Disk & Directory Space Analysis
+
+Understanding how storage is allocated and consumed is vital for preventing production outages.
+
+| Command | Purpose | Key Flags & Practical Example |
+| --- | --- | --- |
+| **`df`** 📊 | **Disk Free:** Reports filesystem disk space usage | `df -h` *(human-readable: GB/MB)*<br>
+
+<br>`df -T` *(print filesystem type: ext4, xfs)* |
+| **`du`** 📁 | **Disk Usage:** Estimates space used by files/directories | `du -sh /var/log` *(summary in human-readable format)*<br>
+
+<br>`du -h --max-depth=1 /var` |
+| **`lsblk`** 🗂️ | Lists all block storage devices and partitions | `lsblk -f` *(displays UUIDs and filesystem formats)* |
+
+### 🔹 Practical Storage Inspection
+
+```bash
+# Check available space across all mounted filesystems
+df -h
+
+# Find the top 5 largest directories under /var
+sudo du -h --max-depth=1 /var 2>/dev/null | sort -hr | head -n 5
+
+```
+
+---
+
+## 🧠 2. Inodes, Hard Links & Soft Links
+
+Every file in a Linux filesystem is represented internally by an **Inode** (Index Node), which stores file metadata (size, permissions, owner, timestamps, and data block pointers), but **not** the file name or actual file content.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Inode Data                           │
+├───────────────────┬─────────────────────────────────────────┤
+│ Inode Number      │ Unique ID on the filesystem (e.g., 104) │
+│ Metadata          │ Permissions (755), Owner (1000:1000)    │
+│ Pointers          │ Points to data blocks on physical disk  │
+└───────────────────┴─────────────────────────────────────────┘
+
+```
+
+### 🔹 Hard Links vs. Soft (Symbolic) Links
+
+| Characteristic | 🔗 Hard Link | 🔀 Soft Link (Symlink) |
+| --- | --- | --- |
+| **Target** | Points directly to the **Inode number** | Points to the **File path/name** |
+| **Creation** | `ln file.txt hardlink.txt` | `ln -s file.txt symlink.txt` |
+| **Across Filesystems?** | ❌ No (restricted to same filesystem) | ✅ Yes |
+| **Original Deleted?** | ✅ Content stays accessible via hard link | ❌ Link breaks (dangling symlink) |
+| **Directories?** | ❌ Not permitted for users | ✅ Supported |
+
+### 🔹 Inode Exhaustion (`df -i`)
+
+A filesystem can run out of space even if it has gigabytes of free disk capacity if all available **inodes** are consumed by millions of tiny files.
+
+```bash
+# Check inode utilization percentage
+df -i
+
+# Find directories containing huge numbers of files
+find / -xdev -printf '%h\n' | sort | uniq -c | sort -k 1 -n | tail -n 10
+
+```
+
+---
+
+## 🧰 3. Advanced Searching with `find`
+
+The `find` utility traverses directory trees to locate files matching specific criteria.
+
+```bash
+# 1. Find files by name (case-insensitive)
+find /etc -iname "*.conf"
+
+# 2. Find files larger than 100MB
+find /var/log -type f -size +100M
+
+# 3. Find files modified in the last 7 days
+find /opt/app -type f -mtime -7
+
+# 4. Find and delete files older than 30 days
+find /tmp -type f -mtime +30 -exec rm -f {} \;
+
+# 5. Find files by permission mode (e.g., world-writable)
+find /var/www -type f -perm 0777
+
+```
+
+---
+
+## 🔌 4. Mounting & Managing Filesystems
+
+Before a partition or disk can be accessed, it must be **mounted** onto a directory (mount point).
+
+```
+[ New Disk: /dev/sdb1 ] ──► ( Mount ) ──► [ Directory: /mnt/data ]
+
+```
+
+```bash
+# Mount a partition to a directory
+sudo mount /dev/sdb1 /mnt/data
+
+# Unmount safely
+sudo umount /mnt/data
+
+# View all currently mounted filesystems
+mount | column -t
+
+```
+
+### 🔹 Persistent Mounts: `/etc/fstab`
+
+To automatically mount disks at boot time, add an entry to `/etc/fstab`:
+
+```text
+# <file system>                           <mount point>   <type>  <options>       <dump>  <pass>
+UUID=3a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d  /mnt/data       ext4    defaults,noatime  0       2
+
+```
+
+```bash
+# Test fstab entries without rebooting (mounts everything listed in fstab)
+sudo mount -a
+
+```
+
+---
+
+## 📜 5. Log Files & Log Rotation (`logrotate`)
+
+System and application logs live in `/var/log/`. To prevent these logs from consuming all disk space, the system uses **`logrotate`**.
+
+* 📁 Configuration directory: `/etc/logrotate.d/`
+* ⚙️ Main config: `/etc/logrotate.conf`
+
+### 🔹 Sample `logrotate` Configuration (`/etc/logrotate.d/nginx`)
+
+```text
+/var/log/nginx/*.log {
+    daily                   # Rotate logs every day
+    missingok               # Don't error if file is missing
+    rotate 14               # Keep 14 historical log files
+    compress                # Compress rotated files (.gz)
+    delaycompress           # Defer compression to next rotation cycle
+    notifempty              # Do not rotate empty files
+    create 0640 www-data adm# Create new empty log with these permissions
+    sharedscripts
+    postrotate
+        systemctl reload nginx > /dev/null 2>/dev/null || true
+    endscript
+}
+
+```
+
+```bash
+# Force a dry-run test of logrotate configuration
+sudo logrotate -d /etc/logrotate.d/nginx
+
+# Force immediate execution
+sudo logrotate -f /etc/logrotate.d/nginx
+
+```
+
+---
+
+# 📖 Module 5: Linux Networking & Port Management
+
+---
+
+## 🌐 1. IP & Interface Configuration (`ip`)
+
+The **`ip`** command (from the `iproute2` package) replaces legacy tools like `ifconfig` and `route` for managing network interfaces, IP addresses, and routing tables.
+
+| Subcommand | Purpose | Practical Example |
+| --- | --- | --- |
+| **`ip addr`** (or `ip a`) 🏷️ | Show IP addresses assigned to all network interfaces | `ip a show eth0` *(view IP details for interface eth0)* |
+| **`ip link`** 🔌 | View and modify the state of network interfaces | `sudo ip link set eth0 up` *(bring interface up)* |
+| **`ip route`** (or `ip r`) 🗺️ | View and manage the kernel routing table | `ip route show` *(check the default gateway)* |
+
+### 🔹 Practical Examples
+
+```bash
+# Display all network interfaces with assigned IPv4 and IPv6 addresses
+ip -br a
+
+# View the default gateway and routing paths
+ip route show
+
+# Temporarily assign an IP address to an interface
+sudo ip addr add 192.168.1.50/24 dev eth0
+
+```
+
+---
+
+## 🔌 2. Sockets & Active Connections (`ss`)
+
+The **`ss`** (Socket Statistics) command inspects network sockets and listening ports, replacing the older `netstat` tool.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   Common `ss` Flag Summary                  │
+├───────┬─────────────────────────────────────────────────────┤
+│ `-t`  │ TCP sockets                                         │
+│ `-u`  │ UDP sockets                                         │
+│ `-l`  │ Listening sockets (ports currently waiting for traffic)│
+│ `-n`  │ Numeric display (show port numbers instead of names)│
+│ `-p`  │ Process ID and program name using the socket        │
+└───────┴─────────────────────────────────────────────────────┘
+
+```
+
+### 🔹 Practical Port Inspection
+
+```bash
+# View all active listening TCP and UDP ports with process names
+sudo ss -tulnp
+
+# Check if a specific port (e.g., port 8080) is currently listening
+sudo ss -tulpn | grep ':8080'
+
+# List all established outbound TCP connections
+ss -t state established
+
+```
+
+---
+
+## 📡 3. Testing Connectivity & HTTP Requests (`ping`, `curl`)
+
+### 🔹 `ping` (ICMP Echo)
+
+Tests reachability between hosts on an IP network and measures round-trip time.
+
+```bash
+# Send 4 ICMP echo requests to verify network connectivity
+ping -c 4 8.8.8.8
+
+# Test local network stack health (loopback interface)
+ping -c 2 127.0.0.1
+
+```
+
+### 🔹 `curl` (Client URL)
+
+Transfers data to or from a network server using protocols like HTTP, HTTPS, and FTP.
+
+```bash
+# Send an HTTP GET request and print response headers only (-I)
+curl -I https://example.com
+
+# Send a POST request with a JSON payload and custom headers
+curl -X POST https://api.example.com/orders \
+  -H "Content-Type: application/json" \
+  -d '{"item": "book", "qty": 1}'
+
+# Follow HTTP redirects (-L) and measure total response time
+curl -s -w 'Total Time: %{time_total}s\n' -o /dev/null -L https://example.com
+
+```
+
+---
+
+## 🗺️ 4. DNS Resolution Basics
+
+Domain Name System (DNS) translates human-friendly hostnames (e.g., `google.com`) into IP addresses (e.g., `142.250.190.46`).
+
+```
+[ Application ] ──► [ /etc/hosts ] ──► [ /etc/resolv.conf ] ──► [ Upstream DNS Server ]
+
+```
+
+### 🔹 Key DNS Files
+
+* **`/etc/hosts`** 📝: Local static mapping of hostnames to IP addresses (evaluated before DNS queries).
+* **`/etc/resolv.conf`** ⚙️: Configures nameserver IP addresses used for system DNS lookups.
+* **`/etc/nsswitch.conf`** 🔀: Defines the lookup order for name resolution (e.g., `hosts: files dns`).
+
+### 🔹 DNS Query Tools
+
+```bash
+# Query DNS records for a domain using dig
+dig example.com +short
+
+# Perform a reverse DNS lookup (find hostname from IP)
+dig -x 8.8.8.8 +short
+
+# Query a specific DNS server directly (e.g., Cloudflare DNS at 1.1.1.1)
+dig @1.1.1.1 example.com
+
+```
+
+---
+
+## 🚪 5. Ports & Protocols
+
+Network ports are 16-bit numbers ($0$ to $65535$) identifying specific communication endpoints on an operating system.
+
+| Port Range | Category | Description |
+| --- | --- | --- |
+| **$0 - 1023$** 🔒 | **Well-Known Ports** | Reserved for privileged/system services (requires root to bind) |
+| **$1024 - 49151$** ⚙️ | **Registered Ports** | User processes and custom application services |
+| **$49152 - 65535$** 🔄 | **Dynamic / Ephemeral Ports** | Temporary ports used by clients for outbound requests |
+
+### 🔹 Common Standard Ports
+
+```
+┌──────┬──────────┬───────────────────────────────────────────┐
+│ Port │ Protocol │ Common Service                            │
+├──────┼──────────┼───────────────────────────────────────────┤
+│ 22   │ TCP      │ SSH (Secure Shell)                        │
+│ 53   │ UDP/TCP  │ DNS (Domain Name System)                  │
+│ 80   │ TCP      │ HTTP (Unencrypted Web)                    │
+│ 443  │ TCP      │ HTTPS (TLS Encrypted Web)                 │
+│ 3306 │ TCP      │ MySQL Database                            │
+│ 5432 │ TCP      │ PostgreSQL Database                       │
+│ 6379 │ TCP      │ Redis In-Memory Store                     │
+└──────┴──────────┴───────────────────────────────────────────┘
+
+```
+
+---
+
+# 📖 Module 6: System Resource Troubleshooting & Limits
+
+---
+
+## ⚡ 1. CPU Bottleneck Troubleshooting
+
+CPU issues generally fall into two categories: **high utilization** (heavy computation) or **high load average** (processes waiting for CPU time or disk I/O).
+
+### 🔹 Key Metrics & Load Average
+
+* 📈 **Load Average:** The average number of processes in a *runnable* or *uninterruptible sleep* state over 1, 5, and 15 minutes.
+* 📏 **Rule of Thumb:** A load average equal to your total number of CPU cores means $100\%$ optimal utilization. Anything significantly higher means processes are queuing up and waiting.
+
+```
+Total Cores = 4
+Load Average: 4.00  ➔ 100% capacity (ideal utilization)
+Load Average: 8.00  ➔ System is overloaded (4 processes waiting in queue on average)
+
+```
+
+### 🔹 Diagnostic Commands
+
+| Command | Purpose | Useful Flags & Syntax |
+| --- | --- | --- |
+| **`uptime`** ⏱️ | View system uptime and 1, 5, 15 min load averages | `uptime` |
+| **`top` / `htop**` 📊 | Identify top CPU-consuming processes | Press `P` inside `top` to sort by `%CPU` |
+| **`mpstat`** 🧠 | Per-core CPU utilization breakdown | `mpstat -P ALL 1 3` *(report per-core stats 3 times, every 1 sec)* |
+| **`pidstat`** 🔍 | CPU usage per process over time | `pidstat -u 1 5` *(monitor process CPU every 1 sec for 5 intervals)* |
+
+```bash
+# Check how many CPU cores are available on the system
+nproc
+# or
+lscpu | grep "CPU(s):"
+
+# View CPU breakdown (user, system, iowait, idle) per core
+mpstat -P ALL 1 1
+
+```
+
+---
+
+## 🧠 2. Memory & Swap Troubleshooting
+
+When physical RAM runs out, the kernel moves memory pages to **Swap space** on the disk. Excessive swapping degrades performance drastically because disk access is much slower than RAM.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Memory Usage States                      │
+├──────────────┬──────────────────────────────────────────────┤
+│ **Used**     │ Actively allocated by applications and OS    │
+│ **Buffers**  │ In-flight raw disk blocks waiting to write   │
+│ **Cached**   │ Page cache (files read from disk kept in RAM)│
+│ **Available**│ RAM immediately available without swapping   │
+└──────────────┴──────────────────────────────────────────────┘
+
+```
+
+### 🔹 Diagnostic Commands
+
+| Command | Purpose | Useful Flags & Syntax |
+| --- | --- | --- |
+| **`free`** 📉 | Quick snapshot of total, used, free, and swap memory | `free -m` *(Megabytes)* or `free -h` *(Human-readable)* |
+| **`vmstat`** 🔄 | Virtual memory, swap in (`si`), and swap out (`so`) stats | `vmstat 1 5` *(report every 1 second)* |
+
+```bash
+# Display memory in human-readable units
+free -h
+
+# Check swap activity (if si/so > 0 constantly, memory is starving)
+vmstat 1 5
+
+# Check if the kernel Out-Of-Memory (OOM) killer terminated any processes
+sudo dmesg -T | grep -i -E "oom|killed process"
+
+```
+
+---
+
+## 💽 3. Disk I/O & Bottlenecks
+
+High CPU `iowait` (`%wa` in `top`) means the CPU is sitting idle waiting for slow storage read/write operations to complete.
+
+### 🔹 Diagnostic Commands
+
+| Command | Purpose | Useful Flags & Syntax |
+| --- | --- | --- |
+| **`iostat`** 📊 | Storage device read/write throughput and latency | `iostat -xz 1 3` *(extended device stats)* |
+| **`iotop`** 🔍 | Interactive view of top I/O-consuming processes | `sudo iotop -o` *(show only processes actively doing I/O)* |
+| **`lsof`** 📂 | List open files by process or file path | `sudo lsof +D /var/log` *(find open files in a directory)* |
+
+```bash
+# View detailed disk I/O metrics
+# Look at: %util (device saturation) and await (average I/O response time in ms)
+iostat -xz 1 5
+
+# Find which processes are generating the most disk writes right now
+sudo iotop -oPa
+
+```
+
+---
+
+## 🛡️ 4. Resource Limits (`ulimit` & `/etc/security/limits.conf`)
+
+Linux enforces limits on system resources to prevent a single buggy or malicious process from exhausting file descriptors, memory, or process tables.
+
+### 🔹 Soft Limits vs. Hard Limits
+
+* 🟡 **Soft Limit:** The current operational limit enforced by the OS. Non-root users can increase this up to the hard limit.
+* 🔴 **Hard Limit:** The maximum ceiling set by the root user/administrator. Non-root users cannot exceed this.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   Common `ulimit` Flags                     │
+├───────┬─────────────────────────────────────────────────────┤
+│ `-n`  │ Maximum number of open file descriptors (sockets)   │
+│ `-u`  │ Maximum number of processes per user (max user proc)│
+│ `-v`  │ Maximum virtual memory available to the process     │
+│ `-c`  │ Core dump file size limit                           │
+│ `-a`  │ View all current limits for the session             │
+└───────┴─────────────────────────────────────────────────────┘
+
+```
+
+### 🔹 Inspecting and Setting Limits
+
+```bash
+# View all active limits in the current shell
+ulimit -a
+
+# View soft limit for open files
+ulimit -Sn
+
+# View hard limit for open files
+ulimit -Hn
+
+# Temporarily increase open file limit for the current shell session
+ulimit -n 65535
+
+```
+
+### 🔹 Persistent Configuration (`/etc/security/limits.conf`)
+
+To make resource limits permanent across reboots and user logins, add entries to `/etc/security/limits.conf`:
+
+```text
+# <domain/user>  <type>   <item>   <value>
+*                soft     nofile   65535
+*                hard     nofile   65535
+appuser          soft     nproc    4096
+appuser          hard     nproc    8192
+
+```
+
+---
+
+## 📋 5. Rapid Troubleshooting Checklist
+
+When a server becomes slow or unresponsive, follow this standard triage order:
+
+1. ⏱️ **Check Load & CPU:** Run `uptime` and `top`. Is `%wa` (I/O wait) high or is `%usr`/`%sys` high?
+2. 🧠 **Check RAM & Swap:** Run `free -m` and `vmstat 1`. Is swap actively thrashing (`si`/`so`)?
+3. 💽 **Check Disk Space & I/O:** Run `df -h`, `df -i`, and `iostat -xz 1`. Is a disk $100\%$ full or saturated?
+4. 🌐 **Check Sockets & Limits:** Run `ss -tulnp` and check `ulimit -n` if the service reports "Too many open files".
+
+---
+
+Let's test this with a scenario:
+
+Suppose a high-traffic web server starts returning errors, and the application log displays:
+
+`Error: socket: too many open files`
+
+Which specific resource limit was reached, and which command would you run to see the current limit for that user?
+
 ## INTERVIEW QUESTIONS:
 
 1. I have a **nginx webserver**, I want to make some traffic to it. What command I can run?
