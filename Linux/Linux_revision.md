@@ -1009,13 +1009,13 @@ Network ports are 16-bit numbers ($0$ to $65535$) identifying specific communica
 └──────┴──────────┴───────────────────────────────────────────┘
 
 ```
+---
+### Is it mandatory to use the default `port`:
 
-## Is it mandatory to use the default `port`:
+- No, it is not mandatory to use port 5432. You can run PostgreSQL on almost any port number you choose.
+- Port 5432 is simply the standard default port assigned to PostgreSQL by global internet registries so that tools and developers know where to look by default.
 
-No, it is not mandatory to use port 5432. You can run PostgreSQL on almost any port number you choose.
-Port 5432 is simply the standard default port assigned to PostgreSQL by global internet registries so that tools and developers know where to look by default.
-------------------------------
-## 🛑 The Constraints: What ports can you use?
+### 🛑 The Constraints: What ports can you use?
 You can pick any number from 1 to 65535, with two main rules:
 
    1. Ports 1 to 1023 (Privileged Ports): Avoid these. They are reserved for core system services (like HTTP on 80 or SSH on 22). Running PostgreSQL here requires root system privileges, which is a major security risk.
