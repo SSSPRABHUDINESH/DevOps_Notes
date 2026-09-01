@@ -837,9 +837,16 @@ The **`ip`** command (from the `iproute2` package) replaces legacy tools like `i
 
 | Subcommand | Purpose | Practical Example |
 | --- | --- | --- |
-| **`ip addr`** (or `ip a`) 🏷️ | Show IP addresses assigned to all network interfaces | `ip a show eth0` *(view IP details for interface eth0)* |
+| **`ip addr`** (or **`ip a`**) 🏷️ | Show IP addresses assigned to all network interfaces | `ip a show eth0` *(view IP details for interface eth0)* |
 | **`ip link`** 🔌 | View and modify the state of network interfaces | `sudo ip link set eth0 up` *(bring interface up)* |
 | **`ip route`** (or `ip r`) 🗺️ | View and manage the kernel routing table | `ip route show` *(check the default gateway)* |
+
+For external Ip: **curl ifconfig.me**
+
+In windows machine:
+
+For internal ip: **ipconfig**
+For external Ip: **curl ifconfig.me**
 
 ### 🔹 Practical Examples
 
