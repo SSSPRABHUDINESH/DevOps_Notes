@@ -505,7 +505,24 @@ set -euo pipefail
 
 * 🛑 **`-e` (errexit):** Exit immediately if any command returns a non-zero status.
 * 🔍 **`-u` (nounset):** Treat unset variables as errors and exit immediately.
+        ```
+        # We forgot to define $TEMP_DIR, or we made a typo!
+        rm -rf /$TEMP_DIR/logs
+        ```
+
+    - `Without -u (Default)`: Bash sees $TEMP_DIR is empty. The command silently evaluates to rm -rf //logs (or worse, rm -rf / depending on the path structure), potentially wiping out critical system files.
+    - `With -u`: Bash sees $TEMP_DIR is empty, immediately prints bash: TEMP_DIR: unbound variable, and halts the script before running the dangerous rm command.
+
 * ⛓️ **`-o pipefail`:** A pipeline fails if *any* command in the chain fails, not just the last one.
+    - A `pipeline` in Bash is any sequence of commands connected by the pipe symbol (`|`). The pipe takes the output (`stdout`) of the command on the left and feeds it directly into the input (`stdin`) of the command on the right.
+    - Attempt to read a file that doesn't exist, then count the lines.
+        ```
+        cat missing_file.txt | wc -l
+        ```
+        - `cat` fails (it cannot find the file) and throws an error.
+        - `wc -l` successfully counts zero lines and exits with a 0 (Success).
+        - Bash looks at `wc -l`, sees a success, and keeps running your script, completely ignoring that the source file was missing.
+
 * 🐞 **`-x` (xtrace):** Print each command and its arguments as it executes (great for debugging).
 
 ### For Troubleshooting:
