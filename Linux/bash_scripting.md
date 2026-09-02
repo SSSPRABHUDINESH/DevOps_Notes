@@ -508,6 +508,8 @@ set -euo pipefail
 * ⛓️ **`-o pipefail`:** A pipeline fails if *any* command in the chain fails, not just the last one.
 * 🐞 **`-x` (xtrace):** Print each command and its arguments as it executes (great for debugging).
 
+### For Troubleshooting:
+- **`bash -x` (Command Line)**: If you want to debug an entire script without editing the file itself, you can invoke it with the flag directly from your terminal: `bash -x ./script.sh`
 ---
 
 ## 🌐 21. Environment Variables
