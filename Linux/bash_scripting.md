@@ -166,6 +166,32 @@ fi
 
 ```
 
+## **File Test Operators** 
+
+These are used within conditional expressions (like `[[ ... ]]` or `[ ... ]`) to verify file attributes. Below is a list of common operators used for checking file status:
+
+### **Common File Test Operators**
+
+| Operator | Description |
+| :--- | :--- |
+| **-e** | True if the file exists. |
+| **-f** | True if the file exists and is a **regular file**. |
+| **-d** | True if the file exists and is a **directory**. |
+| **-r** | True if the file exists and is **readable**. |
+| **-w** | True if the file exists and is **writable**. |
+| **-x** | True if the file exists and is **executable**. |
+| **-s** | True if the file exists and has a **size greater than zero**. |
+| **-h** or **-L** | True if the file exists and is a **symbolic link**. |
+| **-k** | True if the file has its **sticky bit** set. |
+
+### **Advanced Comparison Operators**
+
+| Operator | Description |
+| :--- | :--- |
+| **file1 -nt file2** | True if *file1* is **newer** than *file2*. |
+| **file1 -ot file2** | True if *file1* is **older** than *file2*. |
+| **file1 -ef file2** | True if *file1* and *file2* refer to the **same device and inode numbers** (hard links). |
+
 ### 🔹 Single vs. Double Brackets (`[` vs. `[[`)
 
 * `[ ... ]`: Standard POSIX test command.
