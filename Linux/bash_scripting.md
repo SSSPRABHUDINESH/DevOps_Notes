@@ -564,7 +564,7 @@ export ENVIRONMENT="production"
 
 ```
 
-
+- **Subprocess variable access:** Variables are local by default. Use `export VAR=value` to make a variable available to child processes or subshells.
 
 ---
 
@@ -896,5 +896,21 @@ These are the essential Bash scripting symbols and their functions for your refe
 ---
 
 
+This video covers 15 advanced Bash scripting interview questions designed for DevOps and SRE roles. Here is the summary of the questions and their corresponding answers:
 
+1. **Difference between $1, $#, and $@:** (1:01) $1 is the first argument, $# is the total number of arguments, and $@ represents all arguments as separate strings.
+2. **Exit script on command failure:** (1:43) Use `set -e` at the top of the script to exit immediately if any command returns a non-zero status.
+3. **Checking command success:** (2:23) Use the `$?` special variable to check the exit status; a value of 0 indicates success, while non-zero indicates failure.
+4. **Enforce exactly one argument:** (3:10) Use an `if` statement to check if `$#` is not equal to 1, then provide a usage error and exit the script.
+5. **Debugging complex scripts:** (3:56) Use `set -x` inside the script or run the script with `bash -x` to enable trace mode and see executed commands.
+6. **Command substitution syntax:** (4:45) The legacy way is using backticks (`` `date` ``), while the preferred modern way is using the `$(date)` syntax.
+7. **Verify file existence and readability:** (5:24) Use `if [[ -r "$file" && -f "$file" ]]` to check if a file is readable and is a regular file.
+8. **For loop over strings:** (6:08) Use `for env in "dev" "qa" "prod"; do echo "$env"; done` to iterate over the list.
+9. **Purpose of trap:** (6:49) The `trap` command executes a function or command when the script receives a specific signal, often used for cleaning up temporary files on exit.
+10. **Why quote variables:** (7:42) Quotes prevent word splitting and globbing, ensuring variables with spaces are treated as a single literal string.
+11. **Pipe vs. Redirection:** (8:42) A pipe (`|`) connects the output of one command to the input of another, while redirection (`>` or `>>`) sends output to a file.
+12. **Double vs. single brackets:** (9:39) `[[ ... ]]` is a Bash keyword that supports enhanced features like pattern matching and complex logic without word splitting issues.
+13. **Subprocess variable access:** (10:22) Variables are local by default. Use `export VAR=value` to make a variable available to child processes or subshells.
+14. **Process line-by-line with custom delimiter:** (11:13) Set the `IFS` (Internal Field Separator) variable to the delimiter (e.g., `:`) before using a `read` loop.
+15. **Shebang purpose:** (11:52) The shebang (`#!/bin/bash`) tells the operating system which interpreter to use to execute the script.
 
