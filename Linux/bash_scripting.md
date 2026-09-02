@@ -505,8 +505,9 @@ set -euo pipefail
 
 * 🛑 **`-e` (errexit):** Exit immediately if any command returns a non-zero status.
 * 🔍 **`-u` (nounset):** Treat unset variables as errors and exit immediately.
+
         ```
-        # We forgot to define $TEMP_DIR, or we made a typo!
+        We forgot to define $TEMP_DIR, or we made a typo!
         rm -rf /$TEMP_DIR/logs
         ```
 
