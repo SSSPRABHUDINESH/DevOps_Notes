@@ -518,6 +518,24 @@ Every file in a Linux filesystem is represented internally by an **Inode** (Inde
 
 ### 🔹 Hard Links vs. Soft (Symbolic) Links
 
+A `hard link` is a direct pointer to the physical data on the disk (sharing the same inode), while a soft link (or symbolic link) is a shortcut that points to another file's path or name 
+
+### What if I delete the file, which I created a hardlink?
+
+- `Yes`, the data still exists.
+
+- The data on the disk is only deleted when all hard links pointing to it are removed.
+
+### How Linux Handles Deletion
+
+- Files are just labels: In Linux, a "filename" is just a hard link pointing to an inode (the actual data blocks).
+- **The Link Counter:** Every inode keeps track of how many filenames point to it.
+
+    - When you create a file, the counter is 1.
+
+    - When you create a hard link, the counter becomes 2.
+
+
 | Characteristic | 🔗 Hard Link | 🔀 Soft Link (Symlink) |
 | --- | --- | --- |
 | **Target** | Points directly to the **Inode number** | Points to the **File path/name** |
