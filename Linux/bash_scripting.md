@@ -786,6 +786,40 @@ main() {
 main "$@"
 
 ```
+---
+
+## TABLE of Symbols used in BASH scripting:
+
+These are the essential Bash scripting symbols and their functions for your reference documentation.
+
+| Symbol | Name | Usage / Description |
+| --- | --- | --- |
+| `#!` | Shebang | Placed at the absolute beginning of a script to specify the interpreter (e.g., `#!/usr/bin/env bash`). |
+| `#` | Hash / Pound | Starts a line comment (ignored by the shell), except when used in the shebang. |
+| `$` | Dollar Sign | Expands variables (e.g., `$VAR`) and references special shell parameters. \vert{} \vert{} `${}` |
+| ``` | Backticks | Legacy syntax for command substitution (mostly replaced by `$()`). |
+| `[]` | Single Brackets | Standard POSIX test command for conditional evaluations (`if [ condition ]`). |
+| `[[]]` | Double Brackets | Modern Bash test syntax supporting regex pattern matching (`=~`) and logical operators. |
+| `(())` | Double Parentheses | Evaluates arithmetic expressions and C-style `for` loops (`for ((i=0; i<3; i++))`). |
+| `&` | Ampersand | Placed at the end of a command to run it in the background. |
+| `$!` | Background PID | Stores the Process ID (PID) of the most recent background command. |
+| `$?` | Exit Status | Stores the exit code of the last executed command (`0` means success). |
+| `$$` | Process ID (PID) | Stores the PID of the currently running script. |
+| `$0`, `$1`, `$2` | Positional Parameters | Reference script execution arguments: `$0` is the script name, `$1` is the first argument, etc. |
+| `$#` | Argument Count | Stores the total number of arguments passed to the script. |
+| `$@`, `$*` | All Arguments | Expands to all positional parameters passed to the script. |
+| `|` | Pipe | Connects the standard output (stdout) of one command directly to the standard input (stdin) of the next. |
+| `>`, `>>` | Output Redirection | Redirects output into a file. `>` overwrites the file; `>>` appends to it. |
+| `<` | Input Redirection | Feeds the contents of a file into a command's standard input. |
+| `2>` | Error Redirection | Redirects standard error (stderr) to a file or stream. |
+| `&>` | Combined Redirection | Redirects both standard output (stdout) and standard error (stderr) to the same location. |
+| `&&` | Logical AND | Executes the right-hand command *only* if the left-hand command succeeds. |
+| `||` | Logical OR | Executes the right-hand command *only* if the left-hand command fails. |
+| `!` | Logical NOT | Inverts a test condition or the exit status of a pipeline. |
+| `;` | Semicolon | Statement separator. Allows multiple independent commands on the same line. |
+| `\`, `'...'`, `"..."` | Escapes & Quotes | `\` escapes the next character. `'` makes everything literal. `"` allows variable expansion inside the string. |
+| `~` | Tilde | Expands to the current user's home directory path. |
+| `*`, `?` | Wildcards (Globbing) | `*` matches zero or more characters in paths/strings. `?` matches a single character. |
 
 ---
 
