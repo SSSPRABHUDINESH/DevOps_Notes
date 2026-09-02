@@ -455,6 +455,34 @@ find /var/log -name "*.log" -mtime +30 | xargs rm -f
 ## 📡 16–17. Process Management & Signal Traps
 
 * ⏱️ **Job Control:** Use `&` to run background jobs, `$!` for the last background PID, and `wait $!` to pause execution until completion.
+
+```bash
+#!/bin/bash
+
+echo "Starting a long, 5-second task in the background..."
+sleep 5 &  
+
+# Capture and print the PID of the background process
+LONG_TASK_PID=$!
+echo "Task is running in the background with PID: $LONG_TASK_PID"
+
+echo "Performing other quick tasks in the meantime..."
+sleep 1
+echo "Quick task 1 complete."
+sleep 1
+echo "Quick task 2 complete."
+
+echo "Now pausing to ensure the long background task finishes..."
+wait $!    
+
+echo "Background task completed! The script will now exit."
+
+```
+
+When you run this script, it does not get stuck at the 5-second `sleep` command. It immediately continues to print the PID and execute the quick 1-second tasks. The script only pauses its forward momentum once it reaches `wait $!`, waiting out the remaining 3 seconds of the background task before printing the final success message.
+
+---
+
 * 🪤 **Signals & `trap`:** Intercept termination signals (`SIGINT`, `SIGTERM`, `EXIT`) to execute cleanup routines:
 ```bash
 cleanup() {
@@ -463,8 +491,6 @@ cleanup() {
 trap cleanup EXIT
 
 ```
-
-
 
 ---
 
