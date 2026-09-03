@@ -270,14 +270,15 @@ State locking prevents multiple Terraform operations from modifying the same sta
 1. State locking is possible only with Remote_backends not with local backend.
 
 ### Importance - Locking state file:
-	
-Locked:It prevents two people from making changes at the same time.
-		• Local State: No locking. If two people run Terraform in the same folder, they can overwrite each other's changes.
-		• How locking works:
-			When you run terraform apply with a supported backend like GCS, Terraform follows this sequence:
-			1.	Request Lock: Before doing anything, Terraform places a small metadata file (the lock) in the bucket.
-			2.	Execute: It runs your plan/apply.
-			3.	Release Lock: Once finished, it deletes the lock file.
+
+
+Locked: It prevents two people from making changes at the same time.
+1. Local State: No locking. If two people run Terraform in the same folder, they can overwrite each other's changes.
+2. How locking works:
+      - When you run terraform apply with a supported backend like GCS, Terraform follows this sequence:
+      1. Request Lock: Before doing anything, Terraform places a small metadata file (the lock) in the bucket.
+      2. Execute: It runs your plan/apply.
+      3. Release Lock: Once finished, it deletes the lock file.
 	
 	What if a lock gets "Stuck"?
 		Sometimes, if your internet cuts out or your computer crashes mid-apply, Terraform might not be able to release the lock. In that specific case, you have to manually break it using:
