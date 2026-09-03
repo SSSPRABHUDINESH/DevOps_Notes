@@ -1065,6 +1065,18 @@ terraform.tfvars -> prod.auto.tfvars
 
 ---
 
+The primary difference between `.auto.tfvars` and `.tfvars` files in Terraform is **how and when they are loaded**.
+
+### Key Differences
+
+| Feature | `.tfvars` (e.g., `terraform.tfvars`) | `.auto.tfvars` (e.g., `common.auto.tfvars`) | Custom `.tfvars` (e.g., `prod.tfvars`) |
+| --- | --- | --- | --- |
+| **Auto-Loading** | Loaded automatically **only** if exact name is `terraform.tfvars` | Loaded **automatically** regardless of prefix (e.g., `app.auto.tfvars`, `gcp.auto.tfvars`) | **Not** loaded automatically. Requires `-var-file` flag |
+| **Usage** | Default root variables | Modular / categorical shared variables | Environment-specific overrides (`dev`, `prod`) |
+| **CLI Command** | `terraform plan` | `terraform plan` | `terraform plan -var-file="prod.tfvars"` |
+
+---
+
 # Chapter 5: Module Interface Design
 
 ## Strong Typing
