@@ -834,6 +834,128 @@ output "vpc_id" {
 - Used by other modules/stacks.
 - Keep them minimal and stable.
 
+**Question 2: Managing Common GCP Labels Across Environments**
+
+**Question:**
+We have 5 environments in Terraform (e.g., `dev`, `qa`, `stage`, `prod`, `dr`). When creating resources, we need to apply 10 to 15 common organizational labels (such as `cost_center`, `billing_center`, `owner`, and `managed_by`) across all resources in every environment.
+
+Do we need to repeat these 10 to 15 labels manually in every resource block across all environment files, or is there a better, DRY (Don't Repeat Yourself) approach to manage this in GCP using Terraform?
+
+---
+
+### Answer / Solution Options
+
+#### Option 1: Provider-Level `default_labels` (Recommended)
+
+Define all common labels directly inside the `provider "google"` block. Terraform will automatically apply these labels to **every GCP resource** in that workspace that supports labels, eliminating duplicate code completely.
+
+* **Code Setup (`providers.tf`):**
+```hcl
+provider "google" {
+  project = var.project_id
+  region  = var.region
+
+  default_labels = {
+    cost_center    = "cc-12345"
+    billing_center = "finance-ops"
+    owner          = "platform-team"
+    managed_by     = "terraform"
+    organization   = "acme-corp"
+  }
+}
+
+```
+
+
+* **Usage:** Simply declare resources normally—they automatically inherit all default labels.
+```hcl
+resource "google_compute_instance" "web" {
+  name         = "web-server"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+}
+
+```
+
+
+* **Pros:** Cleanest implementation with zero resource-level label duplication.
+* **Cons:** Applies globally at the provider workspace level.
+
+---
+
+#### Option 2: Centralized Local Values & Merging (`locals.tf`)
+
+Define the 10–15 base labels in a central `locals.tf` file, then use Terraform's `merge()` function to combine common labels with environment-specific or component-specific labels.
+
+* **Code Setup (`locals.tf`):**
+```hcl
+locals {
+  # 1. Common labels across ALL environments
+  common_labels = {
+    cost_center    = "cc-12345"
+    billing_center = "finance-ops"
+    owner          = "platform-team"
+    managed_by     = "terraform"
+  }
+
+  # 2. Merge common labels with environment specifics
+  env_labels = merge(local.common_labels, {
+    environment = var.environment # e.g., "prod" or "dev"
+  })
+}
+
+```
+
+
+* **Usage:** Pass the merged map directly to the provider's `default_labels` or onto specific resources:
+```hcl
+provider "google" {
+  project        = var.project_id
+  region         = var.region
+  default_labels = local.env_labels
+}
+
+```
+
+
+* **Pros:** Highly flexible for adding dynamic labels (like environment name or service role) on top of common labels.
+* **Cons:** Requires `merge()` calls if applying directly on individual resources instead of through the provider.
+
+---
+
+#### Option 3: Shared Variable Defaults (`common.auto.tfvars`)
+
+Store the common label map inside a variable definition or in a shared `.tfvars` file (e.g., `common.auto.tfvars`) that Terraform automatically loads across environments.
+
+* **Variable Definition (`variables.tf`):**
+```hcl
+variable "common_labels" {
+  type        = map(string)
+  description = "Common labels across all GCP environments"
+  default = {
+    cost_center    = "cc-12345"
+    billing_center = "finance-ops"
+    owner          = "platform-team"
+    managed_by     = "terraform"
+  }
+}
+
+```
+
+
+* **Usage:**
+```hcl
+provider "google" {
+  project        = var.project_id
+  region         = var.region
+  default_labels = var.common_labels
+}
+
+```
+
+* **Pros:** Ideal when supplying variable files dynamically across multi-environment pipeline deployments.
+* **Cons:** Requires maintaining shared `.tfvars` files or workspace variables across directory structures.
+
 ## Scope Matters
 - **Provider scope:** `default_labels`, provider settings.
 - **Root module scope:** environment-level locals and orchestration.
