@@ -895,7 +895,7 @@ These are the essential Bash scripting symbols and their functions for your refe
 
 ---
 ## Interview Questions:
-
+```
 1. **Difference between $1, $#, and $@:** (1:01) $1 is the first argument, $# is the total number of arguments, and $@ represents all arguments as separate strings.
 2. **Exit script on command failure:** (1:43) Use `set -e` at the top of the script to exit immediately if any command returns a non-zero status.
 3. **Checking command success:** (2:23) Use the `$?` special variable to check the exit status; a value of 0 indicates success, while non-zero indicates failure.
@@ -912,3 +912,6 @@ These are the essential Bash scripting symbols and their functions for your refe
 14. **Process line-by-line with custom delimiter:** (11:13) Set the `IFS` (Internal Field Separator) variable to the delimiter (e.g., `:`) before using a `read` loop.
 15. **Shebang purpose:** (11:52) The shebang (`#!/bin/bash`) tells the operating system which interpreter to use to execute the script.
 
+
+
+```
