@@ -555,11 +555,46 @@ prefix = "envs/prod"
 - Supports versioning.
 - Prefix helps split environments.
 
-## Backend Migration
+## Backend Migration: Migrating Local State to GCP (GCS)
+Here is a quick-scan summary of how to move your local terraform.tfstate file to a Google Cloud Storage bucket safely.
+------------------------------
+## 1. The Setup (Prerequisites)
+
+   1. Create Bucket: Make a GCS bucket (e.g., my-gcp-bucket). Turn on Object Versioning.
+   2. Add Code: Add this block to your .tf files:
+
+terraform {
+  backend "gcs" {
+    bucket = "my-gcp-bucket"
+    prefix = "terraform/state"
+  }
+}
+
+------------------------------
+## 2. The Commands: Which one do you run?## 🔹 terraform init (The Default Approach)
+
+* What it does: The standard setup command.
+* When to use: Use this first. It automatically notices you changed your backend configuration from local to gcs.
+* Behavior: It will safely prompt you: "Do you want to copy existing state to the new backend?". Type yes to migrate your data.
+
+## 🔹 terraform init -migrate-state (The Force-Migration Flag)
+
+* What it does: Explicitly forces Terraform to copy state data from the old backend to the new backend.
+* When to use: Use this if the standard terraform init throws an error, or if your GCS bucket already contains an existing state file that you want to overwrite with your local data.
+* Behavior: Copies your current local data and overwrites the destination path in GCS.
+
+## ⚠️ terraform init -reconfigure (The "Forget Everything" Flag)
+
+* What it does: Disregards your old backend settings completely and starts the new backend fresh.
+* When to use: Use this only if you want to switch to the GCS bucket but start with a completely blank slate (ignoring your local state).
+* Behavior: CRITICAL RISK. It will not copy your local state file contents to GCP. Terraform will stop tracking your existing local infrastructure, which can lead to orphaned resources or accidental double-provisioning.
+
+
 `terraform init -migrate-state` moves state. `terraform init -reconfigure` changes backend config without migrating state.
 
 ### Example
 ```bash
+terraform init
 terraform init -migrate-state
 terraform init -reconfigure
 ```
