@@ -279,7 +279,7 @@ Locked: It prevents two people from making changes at the same time.
       1. Request Lock: Before doing anything, Terraform places a small metadata file (the lock) in the bucket.
       2. Execute: It runs your plan/apply.
       3. Release Lock: Once finished, it deletes the lock file.
-	
+```	
 	What if a lock gets "Stuck"?
 		Sometimes, if your internet cuts out or your computer crashes mid-apply, Terraform might not be able to release the lock. In that specific case, you have to manually break it using:
 		terraform force-unlock <LOCK_ID>
@@ -291,7 +291,7 @@ Locked: It prevents two people from making changes at the same time.
 			3.	Open the bucket you use for your Terraform state.
 			4.	Look for a file named default.tflock (or similar, ending in .tflock).
 			5.	If you open or examine the metadata/contents of that file, it contains the Lock ID and information about who is holding the lock.
-
+```
 
 ### Example
 ```text
@@ -678,6 +678,17 @@ Useful commands include `terraform state list`, `terraform state show`, `terrafo
 terraform state list
 terraform state show google_compute_instance.vm
 ```
+
+**Terraform State Commands Overview**
+
+| Command | One-Line Definition |
+| --- | --- |
+| `terraform state list` | Lists all resources currently tracked in the state file. |
+| `terraform state show` | Displays detailed attributes for a single resource in state. |
+| `terraform state mv` | Renames or moves a resource in the state file without recreating infrastructure. |
+| `terraform state rm` | Removes a resource from state tracking without deleting cloud infrastructure. |
+| `terraform state pull` | Downloads and prints raw JSON contents from the remote state backend to stdout. |
+| `terraform import` | Binds existing real-world cloud infrastructure into the Terraform state file. |
 
 ### Key Points
 - Each command has a specific ownership purpose.
