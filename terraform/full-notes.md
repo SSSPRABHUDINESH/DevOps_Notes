@@ -41,6 +41,10 @@ resource "google_compute_network" "vpc" {
 }
 ```
 
+Expansion:
+1. google_compute_network = Resource Type
+2. vpc = resource name or local network name
+
 ### Key Points
 - Code is the source of truth.
 - Infrastructure becomes versioned.
