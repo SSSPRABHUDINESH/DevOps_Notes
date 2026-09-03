@@ -154,15 +154,15 @@ fi
 ### 🔹 Comparison Operators
 
 ```
-┌──────────────────────────────┬──────────────────────────────┬──────────────────────────────┐
-│ 🔢 Numeric Comparisons       │ 🔤 String Comparisons        │ 📁 File Test Operators       │
-├──────────────────────────────┼──────────────────────────────┼──────────────────────────────┤
-│ `-eq` : Equal to             │ `==` or `=` : Strings match  │ `-f` : Regular file exists   │
-│ `-ne` : Not equal to         │ `!=`        : Do not match   │ `-d` : Directory exists      │
-│ `-gt` : Greater than         │ `-z`        : String is empty│ `-e` : Path exists           │
-│ `-lt` : Less than            │ `-n`        : String not null│ `-r` / `-w` / `-x` : Perms   │
-│ `-ge` / `-le` : GTE / LTE    │                              │ `-s` : File is not empty     │
-└──────────────────────────────┴──────────────────────────────┴──────────────────────────────┘
+┌──────────────────────────────┬──────────────────────────────┬───────────────────────────────────────────────────────┐
+│ 🔢 Numeric Comparisons       │ 🔤 String Comparisons        │ 📁 File Test Operators                                │
+├──────────────────────────────┼──────────────────────────────┼───────────────────────────────────────────────────────┤
+│ `-eq` : Equal to             │ `==` or `=` : Strings match  │ `-f` : Regular file exists                            │
+│ `-ne` : Not equal to         │ `!=`        : Do not match   │ `-d` : Directory exists                               │
+│ `-gt` : Greater than         │ `-z`        : String is empty│ `-e` : Path exists                                    │
+│ `-lt` : Less than            │ `-n`        : String not null│ `-r` / `-w` / `-x` : Readable, Writable, executable   │
+│ `-ge` / `-le` : GTE / LTE    │                              │ `-s` : File is not empty                              │
+└──────────────────────────────┴──────────────────────────────┴───────────────────────────────────────────────────────┘
 
 ```
 
