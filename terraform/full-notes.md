@@ -1219,9 +1219,34 @@ Use to control create/destroy/replace behavior.
 ### Example
 ```hcl
 lifecycle {
+
+create_before_destroy = true
+
+}
+```
+```hcl
+lifecycle {
   prevent_destroy = true
 }
 ```
+
+#### Ignore changes:
+```
+ignore_changes = [tags]
+```
+Option	Purpose
+create_before_destroy	Reduce downtime
+prevent_destroy	Protect resources
+ignore_changes	Ignore external updates
+
+🔥 Interview Question
+👉 When use ignore_changes?
+Answer:
+When external systems modify specific attributes that Terraform should not reconcile.
+
+"Your teammate manually changed a VM label in GCP, and every terraform apply changes it back. How would you handle this?"
+A good answer is:
+"First, I'd determine whether that manual change should actually be managed by Terraform. If the attribute is intentionally managed outside Terraform, I would consider using lifecycle { ignore_changes = [...] }. Otherwise, I'd update the Terraform code so that Git remains the source of truth and avoid future manual changes."
 
 ### Key Points
 - Protects resources.
