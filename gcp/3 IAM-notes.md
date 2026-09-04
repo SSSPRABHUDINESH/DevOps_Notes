@@ -1006,6 +1006,9 @@ Target SA
 
 **Workload Identity Federation (WIF)** allows external workloads to authenticate to Google Cloud using a trusted external identity provider without requiring a long-lived Google service-account private key.
 
+<img width="1770" height="627" alt="image" src="https://github.com/user-attachments/assets/57c5a9ce-b78f-4747-9239-f33d6e50eb82" />
+
+
 Common example:
 
 ```text
