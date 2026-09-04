@@ -959,7 +959,9 @@ A customer does not necessarily need a Google Cloud account to access a private 
 
 # 26. Signed URLs
 
-A signed URL is a URL containing authentication/signature information that gives time-limited access to a Cloud Storage resource.
+A Signed URL is a web link that gives temporary permission to download or upload a specific file without needing a login or account.
+
+- A signed URL is a URL containing authentication/signature information that gives time-limited access to a Cloud Storage resource.
 
 Typical use cases:
 
