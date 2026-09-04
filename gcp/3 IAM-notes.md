@@ -1009,6 +1009,15 @@ Target SA
 <img width="1770" height="627" alt="image" src="https://github.com/user-attachments/assets/57c5a9ce-b78f-4747-9239-f33d6e50eb82" />
 
 
+---
+## Workflow:
+
+1. **GitHub Action Token:** When a GitHub workflow runs, it generates an **OIDC (OpenID Connect) token** internally. This token acts as a proof of identity for the workflow execution.
+2. **Security Token Service (STS):** The GitHub Action sends this OIDC token to the **Google Cloud Security Token Service**.
+3. **Validation:** The Google Cloud environment compares the incoming OIDC token against the configuration defined in your **Workload Identity Pool** and **Provider**. This is where your **attribute mappings** and **conditions** (such as matching the specific repository name) are verified (11:00 - 13:05).
+4. **Token Exchange:** Once the identity is validated by the STS, it exchanges the GitHub OIDC token for a **short-lived Google Cloud access token**. This token grants the workflow the permissions associated with the **Service Account** you bound to that pool.
+
+---
 Common example:
 
 ```text
