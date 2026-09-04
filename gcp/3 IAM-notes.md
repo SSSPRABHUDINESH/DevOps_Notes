@@ -1046,6 +1046,13 @@ Short-lived credentials
 GCP
 ```
 
+## Difference between Service account Impersonation and WIF:
+
+*   **Service Account Impersonation:** This is typically used by **human users** (like a Gmail account or an IAM user) or existing compute resources to "assume the identity" of a service account to perform tasks without needing a static key. It allows you to delegate permissions securely.
+*   **Workload Identity Federation (WIF):** This serves as the **bridge for external identities**. When your application lives outside of Google Cloud—such as on *GitHub Actions*, *AWS*, or *Azure*—those environments have their own identity (like an OIDC token). WIF allows Google Cloud to trust those external tokens and map them to a Google Cloud service account, allowing you to access resources without ever creating or managing a long-lived service account key.
+
+In both scenarios, the goal is to eliminate static secrets and rely on **short-lived, auto-rotating credentials**.
+
 ---
 
 # 27. OIDC
