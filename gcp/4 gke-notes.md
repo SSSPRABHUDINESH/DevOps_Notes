@@ -752,8 +752,15 @@ spec:
 
 ------------------------------------------------------------------------
 
-DaemonSet is useful when a Pod should run on nodes according to the
-DaemonSet’s scheduling rules.
+DaemonSet is useful when a Pod should run on all nodes.
+
+### Important interview question:
+
+1. What happens to a DaemonSet when a new node is added to a Kubernetes cluster, and does it require manual intervention?
+
+Ans: No manual intervention is needed because the DaemonSet controller automatically detects the new node during continuous reconciliation and schedules a Pod on it to match the desired state.
+
+---
 
 Common use cases:
 
