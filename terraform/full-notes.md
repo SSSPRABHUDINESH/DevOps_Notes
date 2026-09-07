@@ -166,8 +166,9 @@ data "google_compute_network" "vpc" {
 - Useful for unmanaged or cloud-created resources.
 - Does not create ownership.
 
-### Interview Notes
-Use a data source when the object already exists and Terraform does not own it.
+## Interview Notes
+### Data Source - Can it read resources not managed by Terraform?
+Ans: **YES**
 
 ## 10. `terraform_remote_state`
 `terraform_remote_state` reads outputs from another Terraform state. It is commonly used between teams or stacks when one stack owns the infrastructure and publishes outputs.
