@@ -777,13 +777,16 @@ helm install myapp ./myapp   --set-json 'config={"enabled":true,"port":8080}'
 helm lint ./myapp
 ```
 
-Checks common chart issues.
+- Checks common chart issues.
+- checks chart structure, syntax rules, and best practices.
 
 ### Render
 
 ```bash
 helm template myapp ./myapp
 ```
+
+- `helm template`: Actually renders all templates to prove the resulting YAML is syntactically complete.
 
 Production:
 
