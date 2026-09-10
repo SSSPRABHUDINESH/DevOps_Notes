@@ -324,11 +324,37 @@ sequenceDiagram
     Note over M: Main Agent combines both results and writes the final code
 ```
 ---
+## Hooks:
 
-Ran command: `p4 print //depot/google3/experimental/users/pratapashish/jetski/team_rules_guide.md@967131261`
-Ran command: `p4 describe -s 967131261`
-Ran command: `p4 print //depot/google3/experimental/users/pratapashish/jetski/team_rules_guide.md@=967131261`
-Viewed team_rules_guide.md:1-556
+In simple terms: **A Hook (`hooks.json`) is a "Security Guard at the Door" that inspects every action the AI tries to take *before* it is allowed to happen.**
+
+---
+
+### Why do we need Hooks?
+With `AGENTS.md` (Rules), you are **politely asking** the AI:
+> *"Please don't search outside our team folder."*
+
+Most of the time (95%), the AI listens. But sometimes the AI forgets, gets confused, or hallucinates—and tries to do it anyway.
+
+A **Hook (`hooks.json`) does not rely on the AI's memory or politeness.** It is a deterministic script (Python, shell, or C) that sits between the AI and the computer:
+1. The AI says: *"I want to run `code_search` on `//depot/google3/secret_folder`."*
+2. Before that command can run, the **Hook intercepts it** and checks the path.
+3. If the path is forbidden, the Hook yells **`"DENY!"`** and physically blocks the command from ever running.
+
+---
+
+### The Complete Kitchen Analogy (All 4 Concepts Together!)
+
+Imagine your AI is a **Head Chef** working in a kitchen:
+
+| Concept | Kitchen Analogy | What it does in Jetski |
+| :--- | :--- | :--- |
+| **`AGENTS.md` (Rules)** | **Poster on the Wall** ("No peanuts allowed in dishes") | The Chef reads it and *tries* to follow it. |
+| **`SKILL.md` (Skills)** | **Recipe Book on the Shelf** ("How to bake a cake") | The Chef opens it only when asked to bake a cake. |
+| **Subagents** | **Prep Cook in the Back Room** | The Chef sends a junior helper to chop vegetables in parallel. |
+| **`hooks.json` (Hooks)** | **Security Guard at the Kitchen Door** | Every time the Chef tries to grab an ingredient, the Guard checks their hand. If the Chef grabs peanuts, the Guard physically slaps it away! (**100% guarantee**) |
+
+---
 
 Here is a clear, complete breakdown of your teammate **Ashish Pratap’s (`pratapashish`)** guide: [team_rules_guide.md](file:///google/src/cloud/pratapashish/jetski-team-rules-guide/google3/experimental/users/pratapashish/jetski/team_rules_guide.md).
 
