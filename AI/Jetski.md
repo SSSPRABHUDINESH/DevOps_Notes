@@ -213,14 +213,32 @@ When multiple customizations exist, Jetski resolves them from **highest priority
 ### 4.3 Deep Dive: Authoring Rules & Skills
 
 #### 1. Writing Rules (`AGENTS.md`)
-Rules enforce coding standards, architecture invariants, and behavioral guidelines.
-* Place an `AGENTS.md` file in your project directory or `~/.gemini/config/AGENTS.md`.
-* Keep rules clear, concise, and actionable:
-  ```markdown
-  # Team Coding Rules
-  - Always use `absl::StatusOr<T>` instead of raw error pointers in C++.
-  - Run `SKYBUILD=1 blaze test //my/team/...` before completing any task.
-  ```
+In simple terms: **`AGENTS.md` is a "ground rules" cheat sheet that the AI automatically reads before helping you.**
+
+Think of it like an **onboarding sticky note** taped to your project folder. Instead of repeating the same instructions in every single chat message, you write them once in `AGENTS.md`, and Jetski remembers them automatically.
+
+---
+
+### Real-Life Example
+Imagine every time you ask Jetski to write code, you find yourself repeating:
+> *"Don't use `print()` for debugging, use our custom `logger.info()`, and always run `blaze test` after editing."*
+
+Instead of typing that every day, you put an `AGENTS.md` file in your folder containing:
+```markdown
+- Always use `logger.info()` instead of `print()`.
+- Always run `SKYBUILD=1 blaze test` after modifying any `.py` file.
+- Keep comments short and clear.
+```
+
+From that moment on, whenever you open a file in that folder, **Jetski silently reads `AGENTS.md` in the background and obeys those rules automatically.**
+
+---
+
+### Where can you put `AGENTS.md`?
+1. **In a specific project folder** (e.g., `experimental/users/satyasais/AGENTS.md`):
+   * The rules apply **only when working inside that folder**.
+2. **In your global home config** (`~/.gemini/config/AGENTS.md`):
+   * The rules apply **everywhere**, across all your projects and workspaces.
 
 #### 2. Writing Skills (`skills/<skill-name>/SKILL.md`)
 Skills teach Jetski complex workflows using **Progressive Disclosure** (only the `name` and `description` are loaded initially; the body is loaded only when relevant).
