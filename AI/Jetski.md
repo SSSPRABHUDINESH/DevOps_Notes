@@ -325,6 +325,124 @@ sequenceDiagram
 ```
 ---
 
+Ran command: `p4 print //depot/google3/experimental/users/pratapashish/jetski/team_rules_guide.md@967131261`
+Ran command: `p4 describe -s 967131261`
+Ran command: `p4 print //depot/google3/experimental/users/pratapashish/jetski/team_rules_guide.md@=967131261`
+Viewed team_rules_guide.md:1-556
+
+Here is a clear, complete breakdown of your teammate **Ashish Pratap’s (`pratapashish`)** guide: [team_rules_guide.md](file:///google/src/cloud/pratapashish/jetski-team-rules-guide/google3/experimental/users/pratapashish/jetski/team_rules_guide.md).
+
+---
+
+## 🎯 1. What Problem Does This Document Solve?
+
+When a team in Google3 starts using Jetski, two major questions come up:
+1. **How do we share rules and skills** so every engineer on our team gets the exact same AI behavior without manually copying files?
+2. **How do we guarantee 100% security/scope boundaries?** (For example: preventing the AI from searching or editing files outside your team’s directories in `//depot/google3/...`).
+
+This document answers both questions and introduces the concept of **Soft Guardrails vs. Hard Guardrails**.
+
+---
+
+## 🏗️ 2. The 3 Ways to Share Customizations Across a Team
+
+Ashish breaks down three ways a team can share rules, skills, and guardrails in Google3:
+
+```mermaid
+graph TD
+    subgraph "Approach A: Project Scope (Zero Setup)"
+        A1["google3/your/team/_agents/rules/*.md"] --> A2["Auto-loaded whenever anyone works in that folder"]
+    end
+    subgraph "Approach B: Personal Piper Root (Personal Global)"
+        B1["//depot/configs/users/<ldap>/_agents/"] --> B2["Applies across all CitC workspaces for that specific user"]
+    end
+    subgraph "Approach C: Team Plugin (Modular Bundle)"
+        C1["google3/your/team/plugins/my_plugin/plugin.json"] --> C2["Teammates enable with 1 line in plugins.json"]
+    end
+```
+
+| Approach | Where it Lives | Teammate Setup Effort | Best Used For |
+| :--- | :--- | :--- | :--- |
+| **A. Project Scope** | Inside your team's folder (`google3/<team>/_agents/`) | **Zero Setup** (Automatic) | Team coding standards, folder-specific rules, review checklists. |
+| **B. Personal Piper Root** | `//depot/configs/users/<ldap>/_agents/` (Sibling to `google3/`) | **Manual Copy** | Personal preferences across all your CitC workspaces. |
+| **C. Team Plugin** | `google3/<team>/plugins/<name>/plugin.json` | **1 line in `plugins.json`** | Bundling rules + skills + hooks into a single reusable package. |
+
+---
+
+## 🛡️ 3. The Core Concept: Soft Guardrails vs. Hard Guardrails
+
+This is the most important part of the document. How do you stop an AI from doing something forbidden (like searching outside your team's folders)?
+
+### Tier 1: Soft Guardrails (Prompt Rules — ~90% to 98% Safe)
+You put a markdown file in `_agents/rules/` with `trigger: always_on`:
+```markdown
+---
+trigger: always_on
+description: "Restricts code search to our team's paths"
+---
+NEVER search outside //depot/google3/my/team/...
+```
+* **Why it's only 90–98% safe**:
+  * **Context Fatigue**: After 50+ chat turns, the AI might "forget" the rule.
+  * **Error Recovery**: If a search inside your folder returns 0 results, the AI might try to "be helpful" and search all of Google3 anyway.
+
+---
+
+### Tier 2: Hard Guardrails (`hooks.json` — 100% Deterministic Guarantee)
+To make it **physically impossible** for the AI (or any Subagent!) to break the rule, you use a **Lifecycle Hook (`PreToolUse`)** in `hooks.json`.
+
+#### How a `PreToolUse` Hook Works:
+```
+[AI decides to call: code_search("some_query")]
+                  │
+                  ▼
+[Jetski Engine freezes the tool call BEFORE running it]
+                  │
+                  ▼
+[Passes the tool call JSON to your script: validate_search.py]
+                  │
+        ┌─────────┴─────────┐
+        ▼                   ▼
+   {"allow"}             {"deny"}
+        │                   │
+        ▼                   ▼
+[Tool Executes]   [HARD BLOCK: Tool never runs!
+                   Error message is returned to AI]
+```
+
+Even if the AI hallucinates or a Subagent tries to read an outside file, the **Jetski Engine intercepts the tool call first**. If your validator script prints `{"decision": "deny"}`, the tool call is blocked 100% of the time.
+
+---
+
+## ⚡ 4. The Secret Performance Trick: Python vs. Compiled C (28x Faster)
+
+Ashish discovered an important performance detail:
+* Because a `PreToolUse` hook runs **before every single tool call**, running a Python script (`python3 validate.py`) adds **~37 milliseconds** of Python startup delay each time.
+* By writing the validator in C and compiling it as a static binary (`gcc -O3 -static validate.c -o validate_bin`), the startup time drops to **0 ms**, and the entire check finishes in **1.3 milliseconds (28x faster!)**.
+
+---
+
+## 🛠️ 5. How You Can Use This Exact Flow for Your Work (AlloyDB Omni)
+
+If you want to set up this exact expert flow for your **AlloyDB Omni** work:
+
+1. **Create a folder**: `experimental/users/satyasais/_agents/`
+2. **Add a Soft Rule (`rules/alloydb_rules.md`)**:
+   ```markdown
+   ---
+   trigger: always_on
+   description: "AlloyDB Omni team guidelines"
+   ---
+   - Always scope searches to AlloyDB Omni directories first.
+   ```
+3. **Add a Hard Hook (`hooks.json`)**:
+   If you want to block certain commands (e.g., preventing accidental destructive shell commands or restricting file writes), add `hooks.json` pointing to a validator script.
+
+Would you like to look at any specific script from Ashish's CL (like [validate_ee_workspace_guard.py](file:///google/src/cloud/pratapashish/jetski-team-rules-guide/google3/experimental/users/pratapashish/jetski/hooks/scripts/validate_ee_workspace_guard.py)), or create a sample rule/hook for your own workspace?
+
+---
+# Antigravity:
+---
 ## 🌌 Module 5: Preparing for Antigravity & Autonomous Sidecars
 
 In simple terms: **Antigravity is an "AI Operating System" that turns a normal AI chatbot into a 24/7 autonomous worker.**
