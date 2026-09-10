@@ -327,6 +327,35 @@ sequenceDiagram
 
 ## 🌌 Module 5: Preparing for Antigravity & Autonomous Sidecars
 
+In simple terms: **Antigravity is an "AI Operating System" that turns a normal AI chatbot into a 24/7 autonomous worker.**
+
+Normally, an AI only works when you sit at your keyboard, type a question, and wait for an answer. The moment you close the chat, the AI stops doing anything.
+
+**Antigravity removes that limitation** (hence the name "Anti-gravity" — lifting the weight off you). It gives the AI a **home where it can live, run background scripts, wake up on a timer, and build its own custom dashboards.**
+
+---
+
+### The 3 Superpowers Antigravity Gives to AI
+
+#### 1. Background Automation ("Sidecars") ⏰
+With Antigravity, you don't have to be awake to start a chat. You can tell Antigravity:
+* *"Every morning at 8:00 AM, start an AI agent to check if any AlloyDB tests broke overnight and summarize the fix."*
+* *"Keep a background Python script watching this log file 24/7. If an error pops up, automatically wake up an AI agent to investigate it."*
+
+#### 2. Programmatic Control (`agentapi`) 🎮
+Instead of humans being the only ones who can talk to the AI, Antigravity gives you a command-line tool (`agentapi`) so **your scripts and programs can hire AI agents automatically**.
+* Your bash script can literally run:
+  `agentapi new-conversation "Fix the bug in file X"`
+
+#### 3. Custom Visual Dashboards (UI Plugins) 📊
+Sometimes text chat isn't enough. Antigravity allows AI agents and sidecars to create **mini web apps and visual dashboards** (buttons, graphs, live tables) that appear right inside your side panel (`AuxPane`).
+
+---
+
+### Summary in One Sentence
+* **Without Antigravity**: You have a smart AI assistant, but you have to manually message it every time you want something done.
+* **With Antigravity**: Your AI can **run on schedules, react to events automatically in the background, and display custom UI dashboards.**
+
 Once you understand Jetski, you are ready for **Antigravity**—the broader agentic runtime, UI plugin architecture, and background sidecar ecosystem that powers autonomous workflows.
 
 ### 5.1 How Jetski & Antigravity Fit Together
