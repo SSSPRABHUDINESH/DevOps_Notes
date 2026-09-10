@@ -269,13 +269,60 @@ Instead, **`SKILL.md` works on-demand (like a recipe book on a shelf)**:
 
 ### 4.4 Subagents & Multi-Agent Delegation
 
-Jetski can spawn background subagents (`invoke_subagent`) that run asynchronously with isolated context windows:
-* **`research-google`**: Read-only research specialist with Code Search and Moma access. Ideal for broad codebase investigations that would clutter your main context.
-* **`jetski-guide`**: Answers questions about Jetski features, settings, and customization syntax.
-* **`owl`**: Strategic multi-agent orchestrator for complex design and verification.
-* **`self`**: Full-capability clone of your main agent running in a separate conversation thread.
-* **Custom Subagents**: Defined via `define_subagent` or `agents/<name>/agent.json`.
+In simple terms: **A Subagent is a "Junior Assistant / Specialist" that your main AI hires in the background to do a side job while your main AI keeps working with you.**
 
+---
+
+### Why do we need Subagents?
+Imagine you ask your main AI:
+> *"Search 50 different Google3 directories to find how authentication works, and then refactor my file."*
+
+If your main AI reads 50 huge files by itself:
+1. Its memory (context window) gets **stuffed with junk** from those 50 files.
+2. It gets **slow and distracted**.
+
+Instead, your main AI spawns a **Subagent** (like `research-google`):
+1. The Subagent gets its **own clean, separate memory**.
+2. It goes off in the background, reads all 50 files, and summarizes the answer in 5 bullet points.
+3. It hands **only the 5 bullet points** back to your main AI and disappears!
+
+---
+
+### Real-World Analogy: A Head Chef in a Kitchen
+
+| Concept | Kitchen Analogy | What it does in Jetski |
+| :--- | :--- | :--- |
+| **`AGENTS.md` (Rules)** | **Kitchen Health Rules on the Wall** | Always obeyed ("Wash hands, keep knives sharp"). |
+| **`SKILL.md` (Skills)** | **A Recipe Book on the Shelf** | Opened only when making a specific dish ("How to bake a soufflé"). |
+| **Subagents** | **Hiring a Prep Cook / Specialist** | The Head Chef (Main AI) tells the Prep Cook (Subagent): *"Go chop 50 onions in the back room and bring me the bowl when you're done."* |
+
+---
+
+### Common Subagents Built Into Jetski:
+* **`research-google`**: A background researcher that searches Google3 and Moma docs so your main chat stays clean.
+* **`jetski-guide`**: A specialist that knows every setting and feature of Jetski.
+* **`owl`**: A team of senior architects that debates and plans complex designs.
+
+---
+
+## While a subagent is executing a task in the background, the **Main Agent has two choices**:
+
+
+### Visual Timeline
+
+```mermaid
+sequenceDiagram
+    participant M as Main Agent
+    participant S1 as Subagent 1 (Research)
+    participant S2 as Subagent 2 (Tests)
+
+    M->>S1: "Search Google3 for Auth API" (Runs in background)
+    M->>S2: "Check test failures in //foo/..." (Runs in background)
+    Note over M: Main Agent can do local edits OR pause quietly
+    S1-->>M: 🔔 Auto-Wakeup: "Here is the Auth API summary!"
+    S2-->>M: 🔔 Auto-Wakeup: "Here are the 2 failing tests!"
+    Note over M: Main Agent combines both results and writes the final code
+```
 ---
 
 ## 🌌 Module 5: Preparing for Antigravity & Autonomous Sidecars
