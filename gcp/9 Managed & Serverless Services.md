@@ -1461,6 +1461,8 @@ VPC Service Controls create a security boundary around GCP APIs and managed serv
 
 Binary Authorization guarantees that **only cryptographically verified container images** built by your secure CI/CD pipeline can be deployed to Cloud Run.
 
+- It acts as a security gatekeeper for deployment environments like **Google Kubernetes Engine (GKE)** and **Cloud Run**, ensuring that only signed, approved container images are allowed to run.
+
 ```
 [ Git Push ] ──► [ Cloud Build / CI ] ──► [ Build Image ]
                                                 │
@@ -1479,8 +1481,107 @@ Binary Authorization guarantees that **only cryptographically verified container
                                   - Unsigned Image?  ──► 🛑 Deny Deploy
 
 ```
+## How to Configure Binary Authorization:
+
+**Yes, you must explicitly pass a public key to configure an Attestor, but you CANNOT do this directly inside the Cloud Run deployment UI.**
+
+You have to configure the **Binary Authorization component separately** first.
 
 ---
+
+### Step 1: Search for the "Binary Authorization" Component
+
+In the Google Cloud Console search bar, search for **Binary Authorization**.
+
+In the Binary Authorization console, you will set up two core pieces:
+
+1. **Attestor Creation:** Create an Attestor resource. This is where you **paste or upload your Public Key** (or select a key managed in Google Cloud KMS).
+2. **Policy Configuration:** Define your project's deployment policy (e.g., *"Require attestations from my-attestor before running"*).
+
+---
+
+### Step 2: Turn it On in Cloud Run
+
+Once the Binary Authorization policy and Attestor are configured:
+
+1. Go to **Cloud Run** and select your service.
+2. Click **Edit & Deploy New Revision** (or go to the **Security** tab).
+3. Scroll to the **Binary Authorization** section.
+4. Toggle the switch to **Enable Binary Authorization** (or select "Use Default Policy").
+
+---
+
+### Summary Workflow
+
+```text
+ 1. Binary Authorization Page          2. Cloud Run UI
+┌─────────────────────────────┐       ┌─────────────────────────────┐
+│ • Create Attestor           │       │ • Create Cloud Run Service  │
+│ • Upload Public Key         │ ───►  │ • Enable Binary Auth toggle │
+│ • Set Enforce Policy        │       │ • Deploy Container          │
+└─────────────────────────────┘       └─────────────────────────────┘
+
+```
+
+### How Binary Authorization Verification Works
+
+Instead of checking signature files manually, Binary Authorization relies on a concept called **Attestors** and **Attestations**:
+
+1. **Sign the Image (Build Phase):** During your CI/CD pipeline, an authoritative system (or a tool like KMS/Cosign) signs the container image's SHA-256 digest. This creates a cryptographic **attestation**.
+2. **Define an Attestor Policy (GCP Side):** You set up an **Attestor** in GCP containing the public key needed to verify the attestation.
+3. **Deploy Request (Deploy Phase):** When Kubernetes tries to deploy a pod (`kubectl apply`), Binary Authorization intercepts the request before creating the container.
+4. **Signature Check:** Binary Authorization uses the Attestor’s public key to verify that the image's digest has a valid signature.
+    * **If Valid:** The deployment succeeds.
+    * **If Unsigned or Modified:** Binary Authorization **blocks the deployment** and throws an error.
+
+---
+
+## Does Public keys stored inside container registry? 
+
+**No, the public keys are NOT stored inside the container registry alongside the images**.
+
+Instead, public keys are stored directly inside **Google Cloud Binary Authorization** itself as part of a configuration object called an **Attestor**.
+
+---
+
+### How Binary Authorization Knows and Finds the Public Key
+
+When you turn on Binary Authorization for Cloud Run, the verification workflow works like this:
+
+```text
+ 1. Deployment Attempt         2. Policy Check            3. Attestation Check
+ Cloud Run Service  ─────► Binary Authorization ─────► Finds Attestor Object
+                              (GCP Service)                (Contains Public Key)
+                                                                    │
+ 4. Deployment Decision                                             ▼
+ Success / Rejection ◄────────────────────────────────  Verifies Signature
+
+```
+
+1. **You Configure an Attestor:** In GCP, an **Attestor** is an identity authority defined inside Binary Authorization. When setting up an Attestor, you upload or link your Public Key (from Cloud KMS or local GPG/PKIX) directly to it.
+2. **You Define a Policy:** Your Binary Authorization policy says: *"Only deploy images if they are signed by **Attestor-A**"*.
+3. **At Deployment Time:** When Cloud Run attempts to launch an image:
+    * Binary Authorization checks its internal policy to see which **Attestor** is required.
+    * It fetches the **Public Key** stored inside that Attestor object.
+    * It fetches the signature (Attestation) created for that image's specific SHA-256 digest.
+    * It uses the Attestor’s public key to verify that signature.
+
+
+---
+
+### What IS Stored in the Registry vs. GCP?
+
+| Component | Where It Is Stored | Who Manages It |
+| --- | --- | --- |
+| **Container Image** | Artifact Registry / GCR | Container Registry |
+| **Public Key** | Inside the **Binary Authorization Attestor** (or Cloud KMS) | Binary Authorization |
+| **Signature (Attestation)** | Stored in **Artifact Analysis** (GCP metadata service) | Artifact Analysis / Binary Auth |
+
+### Why You Don't Need to Supply Public Keys per Image
+
+You don't need a unique public key for every individual image!
+
+Typically, an entire CI/CD pipeline or release team uses **one key pair** across hundreds of container images. As long as your CI/CD pipeline signs every new image with the private key, Binary Authorization will automatically verify all of those images using the single public key stored in your project's Attestor.
 
 ### 🔹 Organization Policies for Serverless Governance
 
