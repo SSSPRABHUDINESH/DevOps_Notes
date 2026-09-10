@@ -1,0 +1,83 @@
+**Trivy** (developed by Aqua Security) is an open-source, lightweight, and fast security scanner written in Go.
+
+What makes Trivy unique compared to traditional scanners is its **all-in-one approach**: instead of relying on separate tools to scan your software packages, Docker images, infrastructure code, and secrets, Trivy performs all of these scans through a single binary.
+
+---
+
+### How Trivy Works (Under the Hood)
+
+Trivy operates in three distinct phases: **Ingestion**, **Analysis**, and **Matching**.
+
+```
+┌─────────────────┐       ┌────────────────────────┐       ┌──────────────────────┐
+│  Target Input   │ ────> │ Local Parsing Engine   │ ────> │ Matching & Reporting │
+│ (Image, FS, etc)│       │ Extract pkgs & lockfiles│       │ Cross-check Trivy DB │
+└─────────────────┘       └────────────────────────┘       └──────────────────────┘
+
+```
+
+#### 1. Input Parsing & Inspection
+
+When you point Trivy at a target (a local file system, a container image, or a Git repo):
+
+* **For OS packages:** It reads the package manager metadata (e.g., `dpkg`, `rpm`, `apk`) to detect installed operating system libraries.
+* **For Language Dependencies:** It searches for lockfiles (e.g., `package-lock.json`, `Cargo.lock`, `Pipfile.lock`, `go.sum`) to parse both direct and transitive dependencies.
+
+#### 2. The Database Sync (`trivy-db`)
+
+Trivy does not run a background server or database daemon. Instead, it uses a lightweight, local database cache.
+
+* Before running a scan, Trivy automatically downloads an updated, highly optimized version of **Trivy DB** (rebuilt every few hours by Aqua Security).
+* Trivy DB aggregates vulnerability feeds from multiple sources, including the National Vulnerability Database (NVD), GitHub Security Advisories (GHSA), and distribution-specific security trackers (Ubuntu, RedHat, Alpine, Debian).
+
+#### 3. Matching & Severity Scoring
+
+Trivy maps the exact package name and version parsed from your project against `trivy-db`. It outputs matching CVEs categorized by CVSS severity levels (*LOW*, *MEDIUM*, *HIGH*, *CRITICAL*) along with fixed version details.
+
+---
+
+### Important Features & Capabilities
+
+* **Multi-Target Scanning:** Trivy can scan container images (`trivy image`), local directories/filesystems (`trivy fs`), remote Git repositories (`trivy repo`), virtual machine images, and live Kubernetes clusters (`trivy k8s`).
+* **Comprehensive Vulnerability Coverage:** It detects vulnerabilities in both OS-level packages (Debian, Alpine, RHEL, etc.) and application-level language packages (npm, PyPI, Maven, Go, Cargo, Gem, etc.) in a single pass.
+* **Secret & Misconfiguration Detection:** Beyond CVEs, Trivy checks for hardcoded secrets (API keys, passwords) and scans Infrastructure as Code (IaC) files (Terraform, Dockerfiles, Kubernetes manifests) for security risks.
+* **SBOM Generation & Audit:** Supports exporting and reading Software Bill of Materials in industry-standard formats such as **CycloneDX** and **SPDX**.
+
+---
+
+### Key Operational Strengths
+
+* **Zero-Dependency Installation:** Distributed as a single executable static binary. You do not need Docker, Java, or a running database engine to perform local scans.
+* **High CI/CD Compatibility:** Extremely fast execution speeds make it a popular choice for GitHub Actions, GitLab CI, and Jenkins pipelines to gate builds.
+* **No Server Required:** Runs fully client-side out of the box, making it easy to run offline or in air-gapped environments (by pre-downloading the database).
+
+---
+
+### Basic Commands to Get Started
+
+| Task | Command |
+| --- | --- |
+| **Scan a Docker Image** | `trivy image python:3.10-alpine` |
+| **Scan Local Directory** | `trivy fs /path/to/project` |
+| **Scan a Git Repo** | `trivy repo [https://github.com/user/repo](https://github.com/user/repo)` |
+| **Generate an SBOM** | `trivy image --format cyclonedx nginx:latest` |
+| **Filter Unfixed CVEs** | `trivy image --ignore-unfixed alpine:3.18` |
+
+
+## Realtime Example:
+This video provides a practical tutorial on using **Trivy**, an open-source security tool, to scan *Docker* images for vulnerabilities and remediate them.
+
+### **Phase 1: Installation and Scanning**
+* **Goal:** Identify security weaknesses in an existing *Docker* image named `sample-app2`.
+* **Process:** 
+    * Install *Trivy* by adding the repository and updating the package manager .
+    * Scan the image using the `trivy` command and export the results to a text file for better readability.
+* **Outcome:** The initial scan revealed numerous vulnerabilities, particularly within the *OpenJDK* package.
+
+### **Phase 2: Vulnerability Remediation **
+* **Root Cause Analysis:** The creator identified that the `Dockerfile` was using an outdated, unmaintained official *OpenJDK 8 Alpine* base image.
+* **Fixing the issue:**
+    * Instead of relying on the old base, the creator built a custom image using the **latest** *Alpine* base image.
+    * The new *Dockerfile* updates the base image and installs *OpenJDK 8* manually.
+    * The new image, `sample-app4`, was built and successfully scanned.
+* **Conclusion:** By updating the base image, most of the previously detected vulnerabilities were resolved.
