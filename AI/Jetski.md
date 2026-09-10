@@ -240,24 +240,31 @@ From that moment on, whenever you open a file in that folder, **Jetski silently 
 2. **In your global home config** (`~/.gemini/config/AGENTS.md`):
    * The rules apply **everywhere**, across all your projects and workspaces.
 
+---
+
 #### 2. Writing Skills (`skills/<skill-name>/SKILL.md`)
-Skills teach Jetski complex workflows using **Progressive Disclosure** (only the `name` and `description` are loaded initially; the body is loaded only when relevant).
+In simple terms: **`SKILL.md` is a step-by-step "How-To Recipe Book" that the AI only opens when it needs to perform a specific task.**
 
-```markdown
----
-name: alloydb-dump-analyzer
-description: >-
-  How to capture, parse, and analyze AlloyDB Omni memory dumps and logs.
-  Use when debugging AlloyDB Omni crashes or memory leaks.
+If `AGENTS.md` is a sticky note of **general rules** ("don't do X, always do Y"), **`SKILL.md` is a detailed instruction manual for a complex workflow** ("Here are the exact 5 steps to debug an AlloyDB crash dump").
+
 ---
 
-# AlloyDB Omni Dump Analyzer Workflow
+### Why don't we put everything in `AGENTS.md`?
+Because `AGENTS.md` is loaded into the AI's memory **all the time**. If you put 20 giant instruction manuals in `AGENTS.md`, the AI's memory (context window) gets cluttered and slow.
 
-1. Run the dump collection script: `./alloydbomni_dump.sh --verbose`
-2. Inspect the generated trace in `/tmp/alloydb_trace.log`
-3. Summarize the top 5 memory allocations in a markdown table.
-```
+Instead, **`SKILL.md` works on-demand (like a recipe book on a shelf)**:
+1. **At the start of a chat**: Jetski only sees the **Title & 1-sentence Description** of your `SKILL.md` files (e.g., *"alloydb-dump-analyzer: Use this when analyzing AlloyDB Omni dumps"*).
+2. **When you ask a matching question**: If you say *"Analyze this AlloyDB dump"*, Jetski says *"Aha! I have a skill for that!"*, pulls that specific `SKILL.md` off the shelf, reads the step-by-step recipe, and follows it.
 
+---
+
+### `AGENTS.md` vs. `SKILL.md` at a Glance
+
+| Feature | `AGENTS.md` (Rules) | `SKILL.md` (Skills) |
+| :--- | :--- | :--- |
+| **Analogy** | **Sticky Note on Desk** (Always visible) | **Recipe Book on Shelf** (Opened only when cooking that dish) |
+| **When is it loaded?** | **Always** (whenever you're in that folder) | **Only when needed** for a specific task |
+| **Best for** | Short rules, coding styles, "do's & don'ts" | Multi-step procedures, scripts, debugging runbooks |
 ---
 
 ### 4.4 Subagents & Multi-Agent Delegation
