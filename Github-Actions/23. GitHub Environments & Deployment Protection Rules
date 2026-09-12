@@ -1,0 +1,186 @@
+# Technical Reference: GitHub Environments & Deployment Protection Rules
+
+---
+
+## 1. Architectural Overview & Context
+
+**GitHub Environments** serve as target abstraction layers (e.g., `staging`, `production`, `sandbox`) representing physical or logical infrastructure.
+
+Environments sit between your workflow job execution context and host compute infrastructure. They enforce **deployment guardrails**, inject **environment-scoped secrets**, and gate access based on policy rules.
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Workflow Trigger (e.g., Push to main)                                       │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Workflow Job (Targeting environment: production)                             │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ GitHub Environment Protection Boundary                                       │
+│                                                                             │
+│  1. Branch & Tag Restrictions ──► Fails immediately if ref doesn't match    │
+│  2. Required Reviewers        ──► Pauses execution (up to 30 days)          │
+│  3. Wait Timers               ──► Holds job without consuming billable time │
+│  4. Custom Protection Rules   ──► Webhook payload validation (Datadog, etc.)│
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ All Gates Passed
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Job Execution Context                                                       │
+│ - Resolves Environment Secrets & Variables                                  │
+│ - Spawns Runner & Executes Steps                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+```
+
+---
+
+## 2. Environment Protection Controls
+
+### A. Required Reviewers (Manual Approval Gates)
+
+* **Function:** Halts job execution until authorized individuals or teams explicitly approve the deployment.
+* **Reviewer Capacity:** You can specify up to **6 users or teams** as required reviewers. Approval from **only one** designated reviewer is required for the job to proceed.
+* **Self-Review Prevention:** Optional toggle to prevent the user who initiated or triggered the workflow run from approving their own deployment, forcing separation of duties.
+* **Execution Timeout:** A job waiting for manual approval remains in a `Waiting` state for a maximum of **30 days** before GitHub automatically cancels it.
+
+### B. Wait Timers
+
+* **Function:** Delays job execution for a specified interval after the job is triggered (and after manual approvals are granted).
+* **Configuration Limits:** Integer value between **1 and 43,200 minutes** (1 minute up to 30 days).
+* **Billing Efficiency:** Time spent in the `Waiting` state due to wait timers **does not count toward billable GitHub Actions runner minutes**.
+* **Use Case:** Implements bake times between staging and production deployments or staged canary rollouts.
+
+### C. Deployment Branches and Tags
+
+Enforces restrictions on which Git references (`GITHUB_REF`) are permitted to deploy to the environment.
+
+| Restriction Mode | Description |
+| --- | --- |
+| **No restriction** | Any branch or tag in the repository can trigger a deployment. |
+| **Protected branches only** | Restricts deployment access strictly to branches covered by repository Branch Protection Rules. |
+| **Selected branches and tags** | Custom fnmatch glob patterns (e.g., `main`, `releases/*`, `v*.*.*`). |
+
+---
+
+## 3. Custom Deployment Protection Rules (Third-Party / GitHub Apps)
+
+Custom Deployment Protection Rules use GitHub Apps to evaluate external data sources (monitoring platforms, change management software, security scanners) before granting execution rights.
+
+```text
+┌─────────────────┐       1. Job Request Deployment       ┌────────────────────────┐
+│ GitHub Actions  │ ────────────────────────────────────► │ Environment Gate       │
+└─────────────────┘                                       └───────────┬────────────┘
+                                                                      │
+                                 2. Sends deployment_protection_rule  │
+                                    webhook event                     │
+                                                                      ▼
+                                                          ┌────────────────────────┐
+                                                          │ Third-Party GitHub App │
+                                                          │ (Datadog / ServiceNow) │
+                                                          └───────────┬────────────┘
+                                                                      │
+                                 3. POST Approval/Rejection API Call  │
+                                    /deployment_protection_rule_runs  │
+                                                                      ▼
+┌─────────────────┐       4. Gate Unlocked: Execute       ┌────────────────────────┐
+│ GitHub Actions  │ ◄──────────────────────────────────── │ GitHub API             │
+└─────────────────┘                                       └────────────────────────┘
+
+```
+
+### Supported Custom Rule Triggers
+
+1. **APM / Observability:** Check Datadog or Dynatrace metrics; block production deployments if error rates on staging exceed thresholds.
+2. **ITSM / Compliance:** Validate that a ServiceNow or Jira Change Request ticket exists and is marked as *Approved*.
+3. **Security Scans:** Verify that dynamic application security testing (DAST) or vulnerability scans have completed clean.
+
+---
+
+## 4. Production Workflow Implementation
+
+Here is how to target an environment within a GitHub Actions workflow using explicit deployment URLs and output tracking:
+
+```yaml
+name: Continuous Deployment to Production
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  deployments: write # Mandatory to update GitHub Deployment statuses
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Build Artifact
+        run: echo "Building release artifact..."
+
+  deploy-prod:
+    needs: build
+    runs-on: ubuntu-latest
+
+    # Target the protected environment
+    environment:
+      name: production
+      url: https://api.yourcompany.com/health
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Execute Production Deployment
+        run: |
+          echo "Deploying to Production Environment..."
+          # Environment-specific secrets (e.g., secrets.PROD_DB_URL) are dynamically loaded here
+          ./scripts/deploy.sh --env=production
+
+```
+
+---
+
+## 5. Environment Secrets & Variables Scope Hierarchy
+
+Environment-scoped configuration takes absolute precedence over repository-scoped configuration:
+
+```text
+               RESOLUTION PRECEDENCE (Top Down):
+               
+         ┌──────────────────────────────────────────┐
+         │ 1. Environment Secret / Variable         │  (Highest Priority)
+         └────────────────────┬─────────────────────┘
+                              │
+                              ▼
+         ┌──────────────────────────────────────────┐
+         │ 2. Repository Secret / Variable          │
+         └────────────────────┬─────────────────────┘
+                              │
+                              ▼
+         ┌──────────────────────────────────────────┐
+         │ 3. Organization Secret / Variable        │  (Lowest Priority)
+         └──────────────────────────────────────────┘
+
+```
+
+### Key Differences Matrix
+
+| Dimension | Repository-Scoped Secret | Environment-Scoped Secret |
+| --- | --- | --- |
+| **Access Gate** | Immediate access upon job launch. | Decrypted **only after** all protection rules (reviewers, timers, custom rules) pass. |
+| **Value Overrides** | Standard value across the whole repo. | Overrides Repository and Org secrets with environment-specific values. |
+| **Auditability** | Logs show general execution. | Clear audit logs of who approved access to decrypt the secrets. |
+| **Plan Availability** | Available across all plans (Free, Team, Enterprise). | **Public repos:** All plans.<br>
+
+<br>**Private repos:** Requires GitHub Enterprise or Team plan. |
+
+---
