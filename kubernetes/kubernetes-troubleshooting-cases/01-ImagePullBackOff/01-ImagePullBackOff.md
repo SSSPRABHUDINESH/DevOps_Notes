@@ -48,12 +48,17 @@ If the issue is due to a private repository (e.g., *Docker Hub*), you must provi
 
 1. **Create a Secret:** Create a `docker-registry` type secret to store your credentials.
    * Command: `kubectl create secret docker-registry <secret-name> --docker-server=<server-url> --docker-username=<user> --docker-password=<pass> --docker-email=<email>`
-2. **Reference the Secret:** Add the `imagePullSecrets` field to your *Kubernetes* deployment YAML file.
+2. **Change the Image in deployment:** Replace the old public image with image referenced to private registry.
+3. **Reference the Secret:** Add the `imagePullSecrets` field to your *Kubernetes* deployment YAML file.
 ```yaml
    imagePullSecrets:
      - name: <secret-name>
- ```  
-3. **Verify:** Apply the updated YAML (`kubectl apply -f <file>`) and watch the pod status with `kubectl get pods -w` to confirm it reaches the `Running` state.
+ ```
+
+<img width="496" height="527" alt="image" src="https://github.com/user-attachments/assets/3c1d8180-892f-40cc-b019-8e880412702e" />
+
+
+4. **Verify:** Apply the updated YAML (`kubectl apply -f <file>`) and watch the pod status with `kubectl get pods -w` to confirm it reaches the `Running` state.
 
 ### **Advanced: Using Other Registries**
 * The process for *AWS ECR*, *Azure*, or other cloud registries is identical (30:20). 
