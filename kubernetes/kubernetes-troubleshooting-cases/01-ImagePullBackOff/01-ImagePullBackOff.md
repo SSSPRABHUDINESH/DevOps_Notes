@@ -60,6 +60,17 @@ If the issue is due to a private repository (e.g., *Docker Hub*), you must provi
 <img width="496" height="527" alt="image" src="https://github.com/user-attachments/assets/3c1d8180-892f-40cc-b019-8e880412702e" />
 
 
+### Create a Secret by providing AWS ECR credentials on the command line
+
+```
+kubectl create secret docker-registry  \
+  --docker-server=${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com \
+  --docker-username=AWS \
+  --docker-password=$(aws ecr get-login-password) \
+  --namespace=default
+```
+
+
 4. **Verify:** Apply the updated YAML (`kubectl apply -f <file>`) and watch the pod status with `kubectl get pods -w` to confirm it reaches the `Running` state.
 
 ### **Advanced: Using Other Registries**
