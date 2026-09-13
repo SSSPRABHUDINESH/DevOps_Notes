@@ -28,6 +28,8 @@ In the context of container management, **Docker tagging** is a critical process
 ### **What is Docker Tag?**
 A tag is essentially a **label or version identifier** assigned to a specific image. It allows you to create an alias for an existing image, typically in the format: `repository-name:tag-name` (e.g., `nginx:latest` or `username/my-app:v1`).
 
+- It won't push docker image, it will simply make docker image name ready to use for push.
+
 ### **Why is it useful?**
 * **Registry Routing:** It tells *Docker* exactly which registry and repository to push an image to. Without a tag containing your account username, *Docker* would not know where your private repository is located.
 * **Versioning:** It allows you to keep track of different iterations of your application (e.g., `v1`, `v2`, `stable`) so you can deploy specific versions reliably.
