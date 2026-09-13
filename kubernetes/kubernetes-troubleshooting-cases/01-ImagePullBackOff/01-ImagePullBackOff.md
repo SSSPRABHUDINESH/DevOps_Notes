@@ -1,4 +1,4 @@
-# Invalid Image
+# ImagePullBackoff
 
 This video serves as an introductory guide to troubleshooting the **ImagePullBackOff** error in *Kubernetes*. Below are the comprehensive notes and processes discussed.
 
