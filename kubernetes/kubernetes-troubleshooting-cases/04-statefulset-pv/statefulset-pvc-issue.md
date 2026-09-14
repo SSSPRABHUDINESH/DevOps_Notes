@@ -23,7 +23,12 @@ Unlike *Deployments*, *StatefulSets* create replicas sequentially. If the first 
 
 **External Storage and the CSI Driver**
 *   **Native Storage:** Cloud-managed services like *EKS* or *AKS* come with built-in provisioners for native storage services.
+      - StatefulSet → PersistentVolumeClaim (PVC) → StorageClass → Provisioner → PersistentVolume (PV)
 *   **External Storage:** If an organization wants to use third-party storage solutions (e.g., *NetApp*), they must install a *CSI (Container Storage Interface) Driver*. The driver acts as the provisioner, allowing the cluster to interact with external storage systems beyond the default cloud offerings.
+      - StatefulSet → PersistentVolumeClaim (PVC) → StorageClass → CSI Driver → External Storage Service
+
+  <img width="955" height="285" alt="image" src="https://github.com/user-attachments/assets/03487107-0975-477e-a496-b3015ce083a7" />
+
 
 ```yaml
 apiVersion: apps/v1
