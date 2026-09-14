@@ -1,4 +1,3 @@
-Here is a redesigned Markdown version that keeps every single technical detail, workflow step, and concept intact while vastly improving readability, hierarchy, and visual structure.
 
 ---
 
