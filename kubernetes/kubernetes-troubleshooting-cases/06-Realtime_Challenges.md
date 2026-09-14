@@ -1,6 +1,6 @@
 ## Critical real-world Kubernetes challenges
-
-**1. The Resource Sharing Challenge**
+---
+## **1. The Resource Sharing Challenge**
 * In a production environment, multiple microservices and project teams often share the same Kubernetes cluster rather than having separate clusters.
 * The core challenge lies in how to fairly and safely allocate cluster resources (CPU and RAM) among these competing teams.
 
@@ -136,3 +136,28 @@ If you need to edit existing configurations directly from your terminal:
 kubectl edit deployment sample-app -n dev-team
 
 ```
+---
+## 5. **Upgrades**:
+
+The third major challenge for *DevOps Engineers* in production environments is managing **Kubernetes cluster upgrades**. Below is the structured flow and best practices discussed in the video (25:07 - 31:54):
+
+**1. Preparation and Documentation (27:14 - 29:13)**
+* **Create a Manual:** Develop an end-to-end, step-by-step manual specifically for your cluster type (*kubeadm* or *EKS*).
+* **Backup:** Always perform a full backup of cluster resources and state before starting any upgrade process.
+* **Read Release Notes:** Crucial step often missed. Review the release notes for the new version to identify:
+    * Breaking changes.
+    * Features moving from *beta* to *stable*.
+    * Deprecated features that might break your current deployment.
+
+**2. Control Plane Upgrade (29:17 - 29:43)**
+* The upgrade should be performed in a specific order: 
+    1. **etcd**
+    2. **API Server**
+    3. **Scheduler**
+
+**3. Data Plane (Worker Node) Upgrade Flow (29:47 - 31:54)**
+* **Drain the Node:** Move all running pods from the target node to other healthy nodes in the cluster (30:06).
+* **Cordon/Taint:** Mark the node as unschedulable so no new pods are placed there while it is being upgraded (30:38).
+* **Perform Upgrade:** Install the new version of the *kubelet* and other required packages on that specific node (31:06).
+* **Rejoin:** Bring the node back into the cluster, remove the unschedulable taint, and verify it is running the updated version (31:20).
+* **Iterate:** Repeat this rolling update process one node at a time until the entire cluster is upgraded.
