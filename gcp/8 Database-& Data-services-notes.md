@@ -14,6 +14,7 @@ Chapter 7 — GCP Databases & Data Services
 ├── 7.7 Firestore & Bigtable ⭐⭐
 ├── 7.8 BigQuery ⭐⭐⭐
 └── 7.9 Database Selection + Interview Scenarios ⭐⭐⭐⭐⭐
+└── 8.0 Dataproc, Dataflow
 ```
 
 Let's begin.
