@@ -465,3 +465,8 @@ source myenv/bin/activate
 ```
 
 Once activated, you work in an isolated workspace with its Python interpreter and library dependencies.
+
+```bash
+# To exit from a Virtual environment
+deactivate
+```
