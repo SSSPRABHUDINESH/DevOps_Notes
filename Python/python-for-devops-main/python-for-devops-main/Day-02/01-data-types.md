@@ -2,7 +2,8 @@
 
 In programming, a data type is a classification or categorization that specifies which type of value a variable can hold. Data types are essential because they determine how data is stored in memory and what operations can be performed on that data. Python, like many programming languages, supports several built-in data types.
 
-### - Python is **Dynamically typed** programming language.
+🔥🔥🔥
+> Python is **Dynamically typed** programming language.
 
 Here are some of the common data types in Python:
 
