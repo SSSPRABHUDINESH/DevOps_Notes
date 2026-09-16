@@ -24,7 +24,7 @@ In this example, `greet` is a function that takes a `name` argument and returns 
 
 In the video, starting at (28:54), the speaker explains how *DevOps engineers* use Python functions in real-world scenarios to automate infrastructure tasks instead of writing long, linear scripts. 
 
-**Example Workflow: Automating Infrastructure Tasks**
+#### **Example Workflow: Automating Infrastructure Tasks**
 Instead of writing one massive script to handle multiple cloud tasks, you create modular, reusable functions for each specific job. For instance, to manage *AWS* resources:
 
 *   **Define modular functions:** Create a specific function for each task, such as `def S3():` to handle bucket creation and `def ec2():` to manage virtual machine instances.
@@ -62,7 +62,9 @@ print(my_module.pi)
 
 In this case, `my_module` is a Python module containing the `square` function and a variable `pi`.
 
-### Packages
+---
+
+## Packages
 
 A package is a collection of modules organized in directories. Packages help you organize related modules into a hierarchy. They contain a special file named `__init__.py`, which indicates that the directory should be treated as a package.
 
