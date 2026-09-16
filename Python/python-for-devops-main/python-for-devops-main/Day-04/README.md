@@ -24,7 +24,7 @@ In this example, `greet` is a function that takes a `name` argument and returns 
 
 In the video, starting at (28:54), the speaker explains how *DevOps engineers* use Python functions in real-world scenarios to automate infrastructure tasks instead of writing long, linear scripts. 
 
-🔥 #### **Example Workflow: Automating Infrastructure Tasks**
+🔥 **Example Workflow: Automating Infrastructure Tasks**
 Instead of writing one massive script to handle multiple cloud tasks, you create modular, reusable functions for each specific job. For instance, to manage *AWS* resources:
 
 *   **Define modular functions:** Create a specific function for each task, such as `def S3():` to handle bucket creation and `def ec2():` to manage virtual machine instances.
