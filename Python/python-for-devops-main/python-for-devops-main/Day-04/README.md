@@ -254,6 +254,8 @@ In this example, `my_package` is a Python package containing modules `module1` a
 
 In Python, **`__init__.py`** is a special file used to mark a directory as a **Python package**. It allows Python to treat directories as importable modules so you can organize your code into multi-file project structures.
 
+- `__init__.py` is a **EMPTY** file.
+
 ---
 
 ### Core Purposes of `__init__.py`
