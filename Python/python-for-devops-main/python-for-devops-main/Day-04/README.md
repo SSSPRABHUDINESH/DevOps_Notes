@@ -65,6 +65,107 @@ In this case, `my_module` is a Python module containing the `square` function an
 
 ---
 
+# 📘 The `if __name__ == "__main__":` inside a module Concept
+
+---
+
+## 💡 Core Concept Overview
+
+The `if __name__ == "__main__":` idiom is Python’s standard way of determining **execution context**: it checks whether a script is being run directly as the main program or being imported as a module into another script.
+
+* **`__name__`** is a built-in, special variable (dunder variable) automatically created by the Python interpreter for every file it processes.
+* The string value assigned to `__name__` changes dynamically depending on **how the file was invoked**.
+
+---
+
+## ⚙️ How Python Assigns `__name__`
+
+```
+┌──────────────────────────────────────────┐
+│             TERMINAL COMMAND             │
+└────────────────────┬─────────────────────┘
+                     │
+       ┌─────────────┴─────────────┐
+       ▼                           ▼
+[ python script.py ]        [ import script ]
+(Ran Directly)              (Imported as Module)
+       │                           │
+       ▼                           ▼
+__name__ = "__main__"       __name__ = "script"
+       │                           │
+       ▼                           ▼
+if block = TRUE             if block = FALSE
+(Code Runs)                 (Code Skipped)
+
+```
+
+### 1. Direct Execution Mode (Standalone)
+
+* **Trigger:** You run the file directly from the terminal (e.g., `python calculator.py`).
+* **Python's Action:** Python designates this file as the entry point of the application.
+* **Variable Assignment:** `__name__` is automatically assigned the exact string **`"__main__"`**.
+* **Evaluation:** `if "__main__" == "__main__":` $\rightarrow$ **True** (The block executes).
+
+### 2. Import Mode (Module Context)
+
+* **Trigger:** Another file imports your script (e.g., `import calculator` inside `main.py`).
+* **Python's Action:** Python loads the script to parse its functions and classes.
+* **Variable Assignment:** `__name__` is assigned the **filename of the module** (without `.py`), e.g., `"calculator"`.
+* **Evaluation:** `if "calculator" == "__main__":` $\rightarrow$ **False** (The block is skipped completely).
+
+---
+
+## 🎯 Primary Use Cases for Developers
+
+1. **Standalone Local Testing / Sandbox:**
+Developers can write quick unit tests or print statements inside the file to verify its logic works locally without polluting the execution when others import it.
+2. **Code Reusability & Clean Imports:**
+Allows a single file to act as a dual-purpose asset: an importable library (providing reusable functions/classes) and a standalone executable script.
+3. **Preventing Side Effects:**
+Prevents auto-execution of test code, setup scripts, or sample logic when a file is imported elsewhere.
+4. **Standard Main Entry Point:**
+Provides a clean, explicit structure for starting program execution, similar to `main()` functions in languages like C, C++, or Java.
+
+---
+
+## 📝 Code Example & Behavior
+
+### `calculator.py` (Module File)
+
+```python
+def add(a, b):
+    return a + b
+
+def subtract(a, b):
+    return a - b
+
+# --- LOCAL TEST SANDBOX ---
+if __name__ == "__main__":
+    print("Running local tests for calculator.py...")
+    print(f"5 + 3 = {add(5, 3)}")
+    print(f"10 - 4 = {subtract(10, 4)}")
+
+```
+
+### Behavior Breakdown
+
+| Execution Method | Command | Value of `__name__` | Output |
+| --- | --- | --- | --- |
+| **Direct Execution** | `python calculator.py` | `"__main__"` | Prints test logs and math results. |
+| **Import Execution** | `python main.py`<br>
+
+<br>*(where `main.py` has `import calculator`)* | `"calculator"` | Silently imports `add` and `subtract`. Test logs are **skipped**. |
+
+---
+
+## ⚠️ Key Rules & Golden Guidelines
+
+* **Name Formatting:** `__name__` and `"__main__"` must be written with **double underscores** (dunders) on both sides.
+* **Avoid Top-Level Executable Code:** Any code sitting outside functions *and* outside the `if __name__ == "__main__":` block will **always execute immediately upon import**.
+* **Clean Practices:** Put module setup, function definitions, and class declarations at the top of the file, and place execution logic, CLI parsing, or test code inside the `if __name__ == "__main__":` block.
+
+---
+
 ## Packages
 
 A package is a collection of modules organized in directories. Packages help you organize related modules into a hierarchy. They contain a special file named `__init__.py`, which indicates that the directory should be treated as a package.
