@@ -140,3 +140,159 @@ Usage: python calculator.py <number1> <operation> <number2>
 Supported operations: add, sub, mul, div
 
 ```
+
+---
+
+# Python Environment Variables: Comprehensive Guide
+
+Environment variables (**Env Vars** or **EnVs**) are global key-value pairs managed by your operating system outside your application code. They allow you to pass sensitive data and deployment configurations into a Python script without hardcoding them into source files.
+
+---
+
+### Why Use Environment Variables?
+
+* **Security & Secret Protection:** Passwords, API keys, database credentials, and SSL certificates are kept out of version control systems (like Git). This prevents accidental exposure in public repositories, logs, or build artifacts.
+* **Environment Portability:** Code runs dynamically across **Development**, **Staging**, and **Production** without source code modification—you simply change the system's environment variables per server.
+* **Automation & CI/CD Readiness:** Standardized pattern for injecting secrets into containerized applications (Docker), Kubernetes pods, and automated runners (GitHub Actions, Cloud Build).
+
+---
+
+### Terminal Management: Setting vs. Viewing
+
+```text
+┌────────────────────────────────────────────────────────┐
+│               Terminal / Shell (Host OS)              │
+│  $ export DB_PASSWORD="secret_password_123"            │
+└───────────────────────────┬────────────────────────────┘
+                            │ Pass-through
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│               Python Application Memory                │
+│  db_pass = os.getenv("DB_PASSWORD")                     │
+└────────────────────────────────────────────────────────┘
+
+```
+
+| OS Platform | Set Variable Command | View All Variables Command |
+| --- | --- | --- |
+| **Linux / macOS (Bash/Zsh)** | `export DB_PASS="my_secret"` | `env` or `printenv` |
+| **Windows (Command Prompt)** | `set DB_PASS="my_secret"` | `set` |
+| **Windows (PowerShell)** | `$env:DB_PASS="my_secret"` | `Get-ChildItem Env:` |
+
+*Note: Variables exported directly in a terminal session exist only for the lifespan of that active shell instance.*
+
+---
+
+### Working with `os` Module in Python
+
+Python reads environment variables through the built-in `os` module. There are two primary ways to access them:
+
+#### Method 1: `os.getenv("KEY", default_value)` (Safer / Optional Keys)
+
+Returns `None` or a specified fallback default if the key does not exist instead of raising an exception.
+
+```python
+import os
+
+# Returns value if present, otherwise returns None
+db_host = os.getenv("DB_HOST") 
+
+# Returns explicit fallback if key is missing
+db_port = os.getenv("DB_PORT", "5432") 
+
+```
+
+#### Method 2: `os.environ["KEY"]` (Strict / Required Keys)
+
+Accesses environment variables like a standard dictionary. Raises a `KeyError` if the requested variable is not set on the system. Use this for mandatory secrets where the app must crash immediately if configuration is missing.
+
+```python
+import os
+
+# Crashes loudly with KeyError if DB_PASSWORD is missing
+db_password = os.environ["DB_PASSWORD"] 
+
+```
+
+---
+
+### Command Line Arguments vs. Environment Variables
+
+| Feature | Command Line Arguments (`sys.argv`) | Environment Variables (`os.getenv`) |
+| --- | --- | --- |
+| **Primary Purpose** | Operational flags & dynamic execution params | Secrets, API keys, infrastructure config |
+| **Security Level** | **Low:** Visible in shell history & process trees | **High:** Injected in-memory, kept out of history |
+| **Frequency of Change** | Changes per execution run (e.g., `calc 2 add 3`) | Set once per deployment environment |
+| **Lifespan** | Exists only for the specific execution command | Persists across process executions in the shell |
+
+---
+
+### Complete Worked Example: Secure Server Connection Script
+
+This script securely connects to a mock remote service by reading sensitive database credentials from environment variables while allowing fallbacks for non-sensitive operational settings.
+
+```python
+import os
+import sys
+
+def connect_to_database():
+    # 1. Fetch REQUIRED sensitive credentials (raises KeyError if absent)
+    try:
+        db_user = os.environ["DB_USER"]
+        db_password = os.environ["DB_PASSWORD"]
+    except KeyError as missing_key:
+        print(f"CRITICAL ERROR: Mandatory environment variable {missing_key} is missing!")
+        print("Please set credentials using: export DB_USER='...' and export DB_PASSWORD='...'")
+        sys.exit(1)
+
+    # 2. Fetch OPTIONAL configuration settings with sensible defaults
+    db_host = os.getenv("DB_HOST", "127.0.0.1")
+    raw_port = os.getenv("DB_PORT", "5432")
+    
+    # 3. Environment variables are always string data type -> Explicit Casting
+    try:
+        db_port = int(raw_port)
+    except ValueError:
+        print(f"ERROR: DB_PORT must be an integer. Got: '{raw_port}'")
+        sys.exit(1)
+
+    # 4. Connection Simulation
+    print("--- Database Connection Initialization ---")
+    print(f"Connecting to Host : {db_host}:{db_port}")
+    print(f"Authenticated User : {db_user}")
+    print(f"Password Status    : {'*' * len(db_password)} (Loaded safely)")
+    print("Connection established successfully!")
+
+if __name__ == "__main__":
+    connect_to_database()
+
+```
+
+---
+
+### Terminal Execution & Sample Output
+
+**Failure Case (Missing Required Credentials):**
+
+```bash
+$ python app.py
+CRITICAL ERROR: Mandatory environment variable 'DB_USER' is missing!
+Please set credentials using: export DB_USER='...' and export DB_PASSWORD='...'
+
+```
+
+**Successful Execution (Setting Variables & Running):**
+
+```bash
+$ export DB_USER="admin_dev"
+$ export DB_PASSWORD="SuperSecretPass123!"
+$ export DB_HOST="db.internal.company.com"
+
+$ python app.py
+--- Database Connection Initialization ---
+Connecting to Host : db.internal.company.com:5432
+Authenticated User : admin_dev
+Password Status    : *───────────────────* (Loaded safely)
+Connection established successfully!
+
+```
