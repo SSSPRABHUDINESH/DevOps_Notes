@@ -34,6 +34,63 @@ Instead of writing one massive script to handle multiple cloud tasks, you create
     *   **Project Management automation:** Writing a function specifically to generate a *Jira* ticket via API instead of manually logging into the platform.
     *   
 ---
+
+## Functions Inside Python vs Bash:
+
+Here is a direct comparison showing how functions are written, defined, and executed in **Bash** versus **Python**:
+
+| Feature | Bash Functions | Python Functions |
+| :--- | :--- | :--- |
+| **Syntax** | `function_name() { ... }`<br>*(or `function function_name { ... }`)* | `def function_name(): ...` |
+| **Simple Example** | `greet() {`<br>`  echo "Hello, $1"`<br>`}` | `def greet(name):`<br>`  print(f"Hello, {name}")` |
+| **Function Call** | `greet "Alice"`<br>*(No parentheses, space-separated args)* | `greet("Alice")`<br>*(Parentheses required)* |
+| **Accepting Arguments** | Uses positional parameters (`$1`, `$2`, `$@`) | Uses named parameters inside parentheses |
+| **Return Values** | **Exit Status Only** (`0-255` via `return`) | **Any Data Type** via `return` |
+| **Capturing Output** | Output printed to stdout is captured:<br>`result=$(greet "Alice")` | Returned object is assigned directly:<br>`result = greet("Alice")` |
+| **Variable Scope** | **Global by default**.<br>Must use `local` keyword (e.g., `local name=$1`). | **Local by default** inside the function body. |
+| **Default Arguments** | Handled manually with parameter expansion:<br> `${1:-"Default"}` | Built-in syntax:<br>`def greet(name="Default"):` |
+
+---
+
+### Side-by-Side Example Code
+
+#### 1. Bash Implementation
+
+```bash
+#!/bin/bash
+
+# Function Definition
+add_numbers() {
+    local num1=$1  # Assigning first positional parameter locally
+    local num2=$2  # Assigning second positional parameter locally
+    
+    local sum=$((num1 + num2))
+    echo "$sum"   # Outputting value so it can be captured
+}
+
+# Function Call & Capturing Output
+result=$(add_numbers 10 20)
+echo "Sum is: $result"
+
+```
+
+#### 2. Python Implementation
+
+```python
+#!/usr/bin/env python3
+
+# Function Definition
+def add_numbers(num1, num2):
+    sum = num1 + num2
+    return sum    # Returning value directly to caller
+
+# Function Call & Capturing Output
+result = add_numbers(10, 20)
+print(f"Sum is: {result}")
+
+```
+
+---
 ## Modules
 
 A module is a Python script containing Python code. It can define functions, classes, and variables that can be used in other Python scripts. Modules help organize and modularize your code, making it more maintainable.
