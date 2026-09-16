@@ -44,7 +44,7 @@ Suppose you have a Python file named `my_module.py`:
 
 ```python
 # my_module.py
-def square(x):
+def square(x=2):
     return x ** 2
 
 pi = 3.14159265
@@ -55,8 +55,9 @@ You can use this module in another script:
 ```python
 import my_module
 
-result = my_module.square(5)
-print(result)
+result1 = my_module # This will execute the my_module.py file
+result2 = my_module.square(5)
+print(result1, result2)
 print(my_module.pi)
 ```
 
