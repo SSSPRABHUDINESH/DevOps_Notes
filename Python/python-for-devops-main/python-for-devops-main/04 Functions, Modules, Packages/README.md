@@ -129,8 +129,9 @@ In this case, `my_module` is a Python module containing the `square` function an
 
 The `if __name__ == "__main__":` idiom is Python’s standard way of determining **execution context**: it checks whether a script is being run directly as the main program or being imported as a module into another script.
 
-* **`__name__`** is a built-in, special variable (dunder variable) automatically created by the Python interpreter for every file it processes.
+* **`__name__`** is a built-in, special variable (dunder variable) automatically assigned by the Python interpreter for every file it processes.
 * The string value assigned to `__name__` changes dynamically depending on **how the file was invoked**.
+* Its value is either `"__main__"` (if executed directly) or the file's module name (without `.py`, if imported).
 
 ---
 
