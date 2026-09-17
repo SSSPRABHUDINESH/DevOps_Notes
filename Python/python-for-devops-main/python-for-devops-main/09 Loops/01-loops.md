@@ -13,6 +13,7 @@ The "for" loop is used to iterate over a sequence (such as a list, tuple, string
 ```python
 for variable in sequence:
     # Code to be executed for each item in the sequence
+    # sequence can be string, Range, List, tuple.
 ```
 
 **Example:**
