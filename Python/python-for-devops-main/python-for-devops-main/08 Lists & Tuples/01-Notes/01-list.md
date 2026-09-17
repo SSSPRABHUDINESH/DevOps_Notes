@@ -3,6 +3,8 @@
 ## What is a List?
 A list is a fundamental data structure in programming that allows you to store a collection of items. Lists are ordered and can contain elements of various data types, such as numbers, strings, and objects.
 
+- Lists and Tuple belongs to `Sequence datatype`.
+
 ## Creating Lists
 You can create a list in various programming languages. In Python, for example, you create a list using square brackets:
 ```python
