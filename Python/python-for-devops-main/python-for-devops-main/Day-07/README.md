@@ -19,6 +19,15 @@ if x > 5:
     print("x is greater than 5")
 ```
 
+### OR
+
+```python
+x = 10
+# Parenthesis is completely valid
+if(x > 5):
+    print("x is greater than 5")
+```
+
 ## `elif` Statement
 
 The `elif` statement allows you to check additional conditions if the previous `if` or `elif` conditions are `False`. You can have multiple `elif` statements after the initial `if` statement.
