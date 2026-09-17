@@ -1,4 +1,4 @@
-# Conditional Statements in Python
+# Conditional Statements in Python (if, elif, else, switch case)
 
 Conditional statements are a fundamental part of programming that allow you to make decisions and execute different blocks of code based on certain conditions. In Python, you can use `if`, `elif` (short for "else if"), and `else` to create conditional statements.
 
@@ -75,4 +75,82 @@ if x > 5:
     print("x is greater than 5")
 else:
     print("x is not greater than 5")
+```
+
+---
+
+# Switch case:
+
+In Python 3.10 and newer, switch-case functionality is implemented using the **`match-case`** statement.
+
+### Basic `match-case` Syntax
+
+```python
+command = "start"
+
+match command:
+    case "start":
+        print("Starting the program...")
+    case "stop":
+        print("Stopping the program...")
+    case "pause":
+        print("Program paused.")
+    case _:
+        print("Unknown command")  # Wildcard '_' acts as the default case
+
+```
+
+---
+
+### Key Features
+
+* **Default Case (`_`):** The underscore `_` serves as the wildcard/default option, matching anything that hasn't been caught by previous cases.
+* **Combine Multiple Conditions (`|`):** Use the pipe operator `|` to match several patterns in a single case block.
+```python
+day = "Saturday"
+
+match day:
+    case "Saturday" | "Sunday":
+        print("It's the weekend!")
+    case _:
+        print("It's a weekday.")
+
+```
+
+
+* **Guard Clauses (`if`):** Add extra conditions directly inside a case check.
+```python
+number = 15
+
+match number:
+    case x if x > 0 and x % 2 == 0:
+        print(f"{x} is a positive even number")
+    case x if x > 0 and x % 2 != 0:
+        print(f"{x} is a positive odd number")
+    case _:
+        print("Number is non-positive")
+
+```
+
+
+
+---
+
+### Alternative for Python 3.9 and Older
+
+If you are using an older version of Python that does not support `match-case`, you can achieve the same behavior using a **dictionary of functions or values**:
+
+```python
+def get_status(code):
+    statuses = {
+        200: "OK",
+        404: "Not Found",
+        500: "Server Error"
+    }
+    # .get() provides a default value if the key isn't found
+    return statuses.get(code, "Unknown Status Code")
+
+print(get_status(200))  # Output: OK
+print(get_status(403))  # Output: Unknown Status Code
+
 ```
