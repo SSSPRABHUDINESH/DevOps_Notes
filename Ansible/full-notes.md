@@ -845,6 +845,34 @@ you should mentally translate it to:
 
 ---
 
+# 20.1 🛃 Custom Modules:
+
+1. **Module**: An Ansible module is a standalone script that executes a single, specific job on a target computer.
+    - Example: `ansible.builtin.copy` <----> `namespace.collection.module`
+
+2. **Custom Module**: a user-defined, standalone script written to perform a specific automation task that is not covered by Ansible’s built-in or community collections.
+
+    - **Folder Structure:**
+
+        ```
+        google
+        ├── alloydbomni_orchestrator/
+        |   ├── ansible.cfg                # MUST contain: library = ./plugins/modules
+        |   ├── site.yml                   # Your playbook
+        |   └── plugins/
+        |   ├── modules/
+        |   │   ├── __init__.py        # Keeps Python happy (optional but good practice)
+        |   │   ├── alloydb_cluster.py    # Custom Module 1
+        |   └── module_utils/
+        |       ├── __init__.py
+        |       └── util.py # Shared logic imported by your modules
+
+        ```
+    - **How to call a custom module:**
+        - google.alloydbomni_orchestrator.alloydb_cluster:
+
+    
+
 #  21. 🔥 Signing Ansible Collection:
 
 ### **GPG keyring**
