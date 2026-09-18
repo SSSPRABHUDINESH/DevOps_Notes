@@ -44,7 +44,7 @@ Namespaces help with:
 
 * Team or project separation (payments, search, platform)
 * Team isolation
-* Applying security controls (RBAC, NetworkPolicy, quotas)
+* Applying security controls (RBAC, NetworkPolicy, quotas, managing resource utilization)
 
 > Kubernetes security always starts with namespaces.
 
