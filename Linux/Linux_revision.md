@@ -163,6 +163,13 @@ Every running program in Linux is represented by a unique **Process ID (PID)**.
 | **`htop`** 🖥️ | Enhanced interactive process viewer | `htop` *(color-coded, supports scrolling and mouse clicks)* |
 | **`pgrep`** 🔍 | Find PID by process name | `pgrep -u appuser nginx` *(find Nginx PIDs for user)* |
 
+---
+
+### Sample `top` Output:
+
+<img src="https://media.geeksforgeeks.org/wp-content/uploads/20250724162654411322/top.webp" alt="top Command in Linux - GeeksforGeeks"/><img width="695" height="396" alt="image" src="https://github.com/user-attachments/assets/88a0f627-7301-450d-9ea5-8305b9b7d4e3" />
+
+
 ### 🔹 Practical Process Inspection Examples
 
 ```bash
