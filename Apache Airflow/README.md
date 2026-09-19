@@ -28,35 +28,114 @@ Instead of configuring jobs via static configuration files or simple cron jobs, 
 
 ---
 
-### Basic Python Example of an Airflow DAG
+Here is an example of an **ETL (Extract, Transform, Load) pipeline** using Apache Airflow.
+
+### Scenario
+
+1. **Extract:** Fetch raw user data from a mock REST API.
+2. **Transform:** Filter out inactive users and format the creation dates.
+3. **Load:** Save the cleaned dataset into a database (or a local CSV file for simplicity).
+
+---
+
+### Airflow DAG Example (`etl_pipeline.py`)
 
 ```python
-from datetime import datetime
+from datetime import datetime, timedelta
+import json
+import pandas as pd
 from airflow import DAG
-from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
 
-# 1. Instantiate the DAG
+# Default arguments applied to all tasks
+default_args = {
+    "owner": "data_team",
+    "depends_on_past": False,
+    "email_on_failure": False,
+    "retries": 1,
+    "retry_delay": timedelta(minutes=5),
+}
+
+# 1. EXTRACT TASK
+def extract_data(**kwargs):
+    # Simulating data extracted from an API or source system
+    raw_data = [
+        {"id": 1, "name": "Alice", "status": "active", "joined": "2024-01-15T10:00:00"},
+        {"id": 2, "name": "Bob", "status": "inactive", "joined": "2024-02-20T11:30:00"},
+        {"id": 3, "name": "Charlie", "status": "active", "joined": "2024-03-05T09:15:00"},
+    ]
+    # Pass extracted data to the next step via Airflow's XCom
+    kwargs["ti"].xcom_push(key="raw_users", value=raw_data)
+    print("Successfully extracted user data.")
+
+# 2. TRANSFORM TASK
+def transform_data(**kwargs):
+    ti = kwargs["ti"]
+    raw_data = ti.xcom_pull(key="raw_users", task_ids="extract_task")
+    
+    # Transform using pandas
+    df = pd.DataFrame(raw_data)
+    
+    # Filter for active users only
+    df_active = df[df["status"] == "active"].copy()
+    
+    # Reformat date column
+    df_active["joined_date"] = pd.to_datetime(df_active["joined"]).dt.strftime("%Y-%m-%d")
+    df_transformed = df_active[["id", "name", "joined_date"]]
+
+    # Output transformed data as JSON string to pass forward
+    transformed_json = df_transformed.to_json(orient="records")
+    ti.xcom_push(key="cleaned_users", value=transformed_json)
+    print(f"Transformed {len(df_transformed)} active records.")
+
+# 3. LOAD TASK
+def load_data(**kwargs):
+    ti = kwargs["ti"]
+    cleaned_json = ti.xcom_pull(key="cleaned_users", task_ids="transform_task")
+    data = json.loads(cleaned_json)
+    
+    # Simulating loading into a database or destination store
+    print("--- Loading Clean Data to Destination ---")
+    for record in data:
+        print(f"Loaded User ID {record['id']}: {record['name']} (Joined: {record['joined_date']})")
+
+# Define the DAG
 with DAG(
-    dag_id="simple_example_dag",
-    start_date=datetime(2024, 1, 1),
+    dag_id="simple_etl_pipeline",
+    default_args=default_args,
+    description="An end-to-end ETL pipeline example",
     schedule_interval="@daily",
+    start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:
 
-    # 2. Define Tasks using Operators
-    task_start = BashOperator(
-        task_id="print_start",
-        bash_command="echo 'Pipeline starting...'",
+    # Define tasks using PythonOperator
+    task_extract = PythonOperator(
+        task_id="extract_task",
+        python_callable=extract_data,
     )
 
-    task_process = BashOperator(
-        task_id="run_processing",
-        bash_command="echo 'Processing data...'",
+    task_transform = PythonOperator(
+        task_id="transform_task",
+        python_callable=transform_data,
     )
 
-    # 3. Set Task Dependencies
-    task_start >> task_process
+    task_load = PythonOperator(
+        task_id="load_task",
+        python_callable=load_data,
+    )
+
+    # Set explicit dependencies (Extract -> Transform -> Load)
+    task_extract >> task_transform >> task_load
 
 ```
+
+---
+
+### How Execution Works
+
+1. **`task_extract`** runs first, fetching raw JSON data and pushing it into Airflow's **XCom** key-value store.
+2. **`task_transform`** waits for `task_extract` to finish, pulls the raw JSON, uses **pandas** to filter out inactive users, and cleans up dates.
+3. **`task_load`** receives the final dataset from the transformation task and loads it into the target destination.
  
     * 
