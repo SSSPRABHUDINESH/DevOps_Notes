@@ -92,7 +92,10 @@ kubectl get pods -n search
 
 * Namespaces map cleanly to teams or projects
 * Isolation helps apply RBAC, NetworkPolicy, and quotas per team
-
+---
+### Can i move one resource(deployment) from one namespace to another namespace.
+**Ans:** `NO`
+---
 Namespaces do NOT provide security by default (yet)
 
 ---
