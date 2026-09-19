@@ -1181,6 +1181,39 @@ This becomes relevant when benchmarking storage.
 
 ---
 
+# 25.1 Useful tools with postgresql:
+
+The *PostgreSQL* installation package includes several other essential utilities for database management. These tools are typically found in the `bin` directory of your installation.
+
+Here are some of the most critical tools packaged with *PostgreSQL*:
+
+* **psql:** The primary terminal-based front-end for *PostgreSQL*. It allows you to interactively enter, edit, and execute SQL commands.
+* **pg_basebackup**: A Standard utility for taking physical backups of a running PostgreSQL database cluster.
+* **pg_dump:** A utility used for creating logical backups of a single database. Unlike physical backups, it generates a script or archive file containing SQL commands to reconstruct the database.
+* **pg_dumpall:** Similar to *pg_dump*, but it extracts an entire *PostgreSQL* cluster, including global objects like users and groups that are shared across databases.
+* **pg_restore:** Used to restore a *PostgreSQL* database from an archive created by *pg_dump* in a non-plain-text format.
+* **pg_isready:** A utility used to check the connection status of a *PostgreSQL* server. It is very useful for shell scripts to determine if a server is accepting connections.
+* **pg_ctl:** A utility for initializing, starting, stopping, or restarting the *PostgreSQL* database server.
+
+---
+
+# 25.2 Differnet types of Backups:
+
+Here is the updated table with the **Snapshot (Storage / Volume level)** mechanism included for direct comparison:
+
+| Feature | `pg_dump` | `pg_basebackup` | `pgBackRest` | Snapshot (Storage / Disk Level) |
+| --- | --- | --- | --- | --- |
+| **Backup Type** | **Logical** (SQL script / text format) | **Physical** (Raw binary database files) | **Physical** (Raw binary database files) | **Block / Physical** (Storage-level volume snapshot) |
+| **Backup Mechanism** | Connects as a standard client; runs `SELECT` queries to extract schema/data into SQL or compressed format | Streams raw binary files of the database directory directly over standard PostgreSQL network protocols | Operates at the folder and file level. It specifically targets PostgreSQL’s data directory (`/var/lib/postgresql/data`), reads the actual database files, validates their checksums, compresses them across CPU threads, and streams only the database data to your backup storage (like GCS). | Captures the entire persistent disk (PD) at the block layer. It freezes all underlying raw storage blocks regardless of what is on them—database files, operating system files, temporary space, or swap partitions |
+| **Scope** | Single database, table, or schema level | Entire PostgreSQL cluster directory (all DBs) | Entire PostgreSQL cluster directory (all DBs) | Entire storage volume / block device hosting PostgreSQL data |
+| **Speed** | **Slow** (high CPU/IO overhead to convert data to text/SQL) | **Fast** (direct binary file streaming speed) | **Very Fast** (multi-threaded, parallel file transfers) | **Near Instantaneous** (creates metadata/pointer snapshot in seconds) |
+| **Incremental Backups** | ❌ **No** (Full dump required every time) | ❌ **No** (Full directory copy every time) | ✅ **Yes** (Supports Full, Differential, and Incremental backups) | ✅ **Yes** (Storage providers copy only changed blocks incrementally) |
+| **Point-in-Time Recovery (PITR)** | ❌ **No** (Only restores to the exact time of the dump) | ✅ **Yes** (Requires manual WAL archiving configuration) | ✅ **Yes** (Automated PITR down to precise millisecond timestamps) | ❌ / ⚠️ **Partial** (Restores to snapshot time; needs external WAL archiving for true PITR) |
+| **Cloud Storage** | ❌ **No** (Requires custom shell or upload scripts) | ❌ **No** (Requires custom shell or upload scripts) | ✅ **Yes** (Native integration with AWS S3, GCS, Azure Blob) | ✅ **Yes** (Managed directly by cloud providers like AWS EBS, GCP PD, Azure Disk) |
+| **Best Used For** | Schema exports, minor migrations, PG major upgrades, or small databases | Rapid replica seeding or basic physical backups without extra tools | Enterprise high-availability clusters, large multi-TB production DBs, automated recovery | Large storage volumes requiring instant recovery points (RPO/RTO) with low performance overhead |
+
+---
+
 # 26. 🏷️ PostgreSQL Database Cluster vs HA Cluster
 
 ## PostgreSQL terminology
