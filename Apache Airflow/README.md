@@ -137,5 +137,3 @@ with DAG(
 1. **`task_extract`** runs first, fetching raw JSON data and pushing it into Airflow's **XCom** key-value store.
 2. **`task_transform`** waits for `task_extract` to finish, pulls the raw JSON, uses **pandas** to filter out inactive users, and cleans up dates.
 3. **`task_load`** receives the final dataset from the transformation task and loads it into the target destination.
- 
-    * 
