@@ -3,6 +3,69 @@
 
 ---
 
+## Components of Linux System
+
+**Kernel** − It is the core of the Linux, It acts as bridge between applications and data processing at hardware level. It's used to manage the system's resources, memory, processes and task management.
+
+Kernel component code executes in a special privileged mode called kernel mode with full access to all resources of the computer.
+
+User programs and other system programs works in User Mode.
+
+### System calls:
+
+When a process in user mode requires access to a resource. Then it requests the kernel to provide the resource via a system calls.
+
+<img width="851" height="642" alt="GetImage" src="https://github.com/user-attachments/assets/47d10fb1-a9ec-4e73-bba0-63bca8680218" />
+
+
+It involves transferring control from user mode to kernel mode.
+
+System calls are divided into 5 categories mainly :
+
+* **Process Control:**
+  * fork()
+  * exit()
+  * exec()
+
+
+* **File Management:**
+  * Read()
+  * Write()
+  * Close()
+
+
+* **Device Management:**
+  * Ioctl() : For device-specific input/output operations
+
+
+* **Information Maintenance**
+  * Getpid()
+  * Alarm()
+  * Sleep()
+
+
+* **Communication**
+  * Pipe()
+  * Shmget() :Shared memory segment.
+  * Mmap() : Used to map or unmap files or devices into memory.
+---
+## Linux Boot process
+
+| Component | Description |
+| --- | --- |
+| **BIOS** | Basic Input Output system. Initializes the hardware, Performs Power On Self-Test and activates MBR |
+| **MBR** | They are disk partitioning styles, to separate physical drive into logical pieces.<br><br><br>Master Boot Record located in the first sector of the bootable device(/dev/sda or /dev/hda). It executes GRUB or Boot Loader.<br><br><br>Or GPT stands for Guid Partition Table, they also manages the creation and organization of partitions on the HDD, here it uses 2 sectors one for MBR and another for BIOS compatibility.<br><br><br>Diff :<br><br>MBR can only handle four primary partitions and 2TB of HDD space. GPT has 128 partitions |
+| **GRUB** | Grand Unified Boot Loader, executes Linux Kernel, Loades the OS on the Boot Process. /boot/grub/grub.conf or /etc/grub.conf |
+| **KERNEL** | Kernel is core of Linux, loads init, root file system and devices drivers during booting process. |
+| **INIT** | This is the first program to execute (/sbin/init). Init initiates the run level.It has PID 1 always It refers /etc/inittab for default run level. |
+| **RUNLEVEL** | Run Level is a mode of OS to be booted. Run level programs are located under /etc/rc.d/rc*.d |
+
+
+**Sudo -**
+
+* It give administrative access, in order to access the file which is not owned by us.
+* allows users to run programs using the security principles.
+
 ## 📁 1. Filesystem Hierarchy Standard (FHS)
 
 Linux organizes files in a single unified tree starting at the root directory (`/`).
