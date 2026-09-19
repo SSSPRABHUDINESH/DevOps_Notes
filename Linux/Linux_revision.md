@@ -11,6 +11,8 @@ Kernel component code executes in a special privileged mode called kernel mode w
 
 User programs and other system programs works in User Mode.
 
+---
+
 ### System calls:
 
 When a process in user mode requires access to a resource. Then it requests the kernel to provide the resource via a system calls.
@@ -48,7 +50,9 @@ System calls are divided into 5 categories mainly :
   * Pipe()
   * Shmget() :Shared memory segment.
   * Mmap() : Used to map or unmap files or devices into memory.
+
 ---
+
 ## Linux Boot process
 
 | Component | Description |
