@@ -313,6 +313,16 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now order-api.service
 
 ```
+---
+### Why System reload:
+
+You need systemctl reload after making changes to a service's configuration file so the application reads the new settings and applies them without shutting down or dropping active connections.
+---
+### A Crucial Distinction for Systemd:
+
+1. Use `systemctl reload <service>` when you change the application's own configuration files (e.g., `/etc/nginx/nginx.conf`).
+
+2. Use `systemctl daemon-reload` when you change the systemd unit file itself (e.g., `/etc/systemd/system/nginx.service`). This tells the Linux system manager to re-read the blueprint of how the service is supposed to run.
 
 ---
 
