@@ -2633,29 +2633,46 @@ Terraform will smoothly pick up exactly where it left off, repair the broken/tai
 
 ---
 
-Older vs Latest Terraform versions:
+### Older vs. Latest Terraform Versions
 
-1. Removed Vendor Provisioners
-While local-exec and remote-exec still exist, specific vendor provisioners were removed in version 0.15 and are not in the latest versions.
-	• Removed: chef, puppet, habitat, salt-masterless.
-	• The Replacement: You now use remote-exec to trigger these tools manually, or better yet, use Cloud-init or Packer as we discussed earlier.
-2. Removed Legacy Syntax (The "Interpolation" Change)
-In older versions, you had to wrap almost everything in ${ }. In modern Terraform, this is removed for simple variable references.
-	• Old/Removed Style: vpc_id = "${aws_vpc.main.id}"
-	• New Style: vpc_id = aws_vpc.main.id (Cleaner and faster).
-3. Removal of list() and map() Functions
-Back in version 0.12 and 0.15, the actual functions named list() and map() were deprecated and eventually removed.
-	• Removed: tags = map("Name", "my-vpc")
-	• The Replacement: Standard HCL brackets.
-	• Lists: [ "val1", "val2" ]
-	• Maps: { key = "value" }
-4. Deprecated: String Aliases for Types
-In older versions, you might see type = "string" or type = "list".
-	• Latest Standard: You should use type keywords without quotes, like type = string, type = list(string), or type = any. The quoted versions are being phased out in favor of the more strict type system.
-5. Strict Requirement: required_providers
-Previously, you could just write a provider "aws" {} block and Terraform would "guess" the source.
-	• Now Mandatory: You must define where a provider comes from in a terraform {} block. This was a breaking change that reached its final form in the 1.x series.
+#### 1. Removed Vendor Provisioners
 
+While `local-exec` and `remote-exec` still exist, specific vendor provisioners were removed in version 0.15 and are not in the latest versions.
+
+* **Removed:** `chef`, `puppet`, `habitat`, `salt-masterless`.
+* **The Replacement:** You now use `remote-exec` to trigger these tools manually, or better yet, use Cloud-init or Packer.
+
+#### 2. Removed Legacy Syntax (The "Interpolation" Change)
+
+In older versions, you had to wrap almost everything in `${ }`. In modern Terraform, this is removed for simple variable references.
+
+* **Old/Removed Style:** `vpc_id = "${aws_vpc.main.id}"`
+* **New Style:** `vpc_id = aws_vpc.main.id` (Cleaner and faster).
+
+#### 3. Removal of `list()` and `map()` Functions
+
+Back in version 0.12 and 0.15, the actual functions named `list()` and `map()` were deprecated and eventually removed.
+
+* **Removed:** `tags = map("Name", "my-vpc")`
+* **The Replacement:** Standard HCL brackets.
+* **Lists:** `[ "val1", "val2" ]`
+* **Maps:** `{ key = "value" }`
+
+
+
+#### 4. Deprecated: String Aliases for Types
+
+In older versions, you might see `type = "string"` or `type = "list"`.
+
+* **Latest Standard:** You should use type keywords without quotes, like `type = string`, `type = list(string)`, or `type = any`. The quoted versions are being phased out in favor of the more strict type system.
+
+#### 5. Strict Requirement: `required_providers`
+
+Previously, you could just write a `provider "aws" {}` block and Terraform would "guess" the source.
+
+* **Now Mandatory:** You must define where a provider comes from in a `terraform {}` block. This was a breaking change that reached its final form in the 1.x series.
+
+```hcl
 terraform {
   required_providers {
     aws = {
@@ -2665,391 +2682,418 @@ terraform {
   }
 }
 
+```
 
-What's NEW (The "Replacements")
+---
+
+### What's NEW (The "Replacements")
+
 Instead of just removing things, HashiCorp added powerful new features to replace "hacks" people used to do:
-	• moved blocks: Replaces the manual terraform state mv command. You can now rename resources in your code without destroying them.
-	• import blocks: Replaces the manual terraform import CLI command. You can now bring existing infrastructure into Terraform using code.
-	• ephemeral values (Terraform 1.10+): A brand new feature that replaces the need to keep "short-lived" secrets (like temporary tokens) in your state file. They exist only during the run and are never saved to disk. 
-	Summary Checklist for your Notes:
-	• Logic: The "Top-to-Bottom" reading of code is gone; the Dependency Graph rules all.
-	• Variables: list() and map() functions are dead; use [] and {}.
-	• Provisioners: Vendor-specific ones (Chef/Puppet) are gone; use remote-exec.
-	• Interpolation: ${} is for joining strings only, not for passing variables.
 
+* **`moved` blocks:** Replaces the manual `terraform state mv` command. You can now rename resources in your code without destroying them.
+* **`import` blocks:** Replaces the manual `terraform import` CLI command. You can now bring existing infrastructure into Terraform using code.
+* **`ephemeral` values (Terraform 1.10+):** A brand new feature that replaces the need to keep "short-lived" secrets (like temporary tokens) in your state file. They exist only during the run and are never saved to disk.
 
-High level concepts:
+#### Summary Checklist for your Notes:
 
+* **Logic:** The "Top-to-Bottom" reading of code is gone; the Dependency Graph rules all.
+* **Variables:** `list()` and `map()` functions are dead; use `[]` and `{}`.
+* **Provisioners:** Vendor-specific ones (Chef/Puppet) are gone; use `remote-exec`.
+* **Interpolation:** `${}` is for joining strings only, not for passing variables.
 
-🌍 TERRAFORM – ADVANCED INTERVIEW PREPARATION (Part 2)
+---
 
-🏗️ 1. Terraform Repository Structure (VERY IMPORTANT)
+# High Level Concepts
+
+## 🌍 TERRAFORM – ADVANCED INTERVIEW PREPARATION (Part 2)
+
+---
+
+### 🏗️ 1. Terraform Repository Structure (VERY IMPORTANT)
+
 This is asked VERY frequently in senior interviews.
 
-❌ Bad Structure
-main.tf
-prod.tf
-qa.tf
-dev.tf
-Problems:
-	• duplication
-	• hard maintenance
-	• drift
+#### ❌ Bad Structure
 
-✅ Recommended Structure
+`main.tf` `prod.tf` `qa.tf` `dev.tf`
+
+**Problems:**
+
+* Duplication
+* Hard maintenance
+* Drift
+
+#### ✅ Recommended Structure
+
+```text
 terraform/
 │
 ├── modules/
 │   ├── network/
 │   ├── compute/
-│   ├── database/
+│   └── database/
 │
-├── environments/
-│   ├── dev/
-│   ├── qa/
-│   ├── prod/
+└── environments/
+    ├── dev/
+    ├── qa/
+    └── prod/
 
-📦 Modules Folder
-Reusable logic:
-modules/network
-modules/compute
+```
 
-🌍 Environment Folder
-Environment-specific configs:
-dev.tfvars
-prod.tfvars
+* **📦 Modules Folder (Reusable logic):**
+* `modules/network`
+* `modules/compute`
 
-🔥 Interview Question
-👉 Why separate modules and environments?
-Answer:
-To maximize reusability while minimizing duplication and configuration drift.
 
-🔗 Your experience mapping
+* **🌍 Environment Folder (Environment-specific configs):**
+* `dev.tfvars`
+* `prod.tfvars`
+
+
+
+> **🔥 Interview Question:** Why separate modules and environments?
+> **Answer:** To maximize reusability while minimizing duplication and configuration drift.
+
+#### 🔗 Your experience mapping
+
 You provisioned:
-	• standalone
-	• resilient
-	• scalable
-👉 Say:
-“We structured Terraform code modularly so that infrastructure differences between architectures could be managed through variables rather than duplicated code.”
 
-🌍 2. Multi-Environment Strategy (VERY IMPORTANT)
+* Standalone
+* Resilient
+* Scalable
 
-Common Strategies
-Strategy	Usage
-Separate folders	Most common
-Workspaces	Small environments
-Separate repos	Highly isolated envs
+👉 **Say:**
 
-Recommended for enterprise:
-Separate environment folders + separate state
+*"We structured Terraform code modularly so that infrastructure differences between architectures could be managed through variables rather than duplicated code."*
 
-🔥 Interview Question
-👉 How do you avoid environment drift?
-Answer:
-	• shared modules
-	• centralized pipeline
-	• code reviews
-	• no manual infra changes
+---
 
-🔗 Strong Interview Answer
-“We maintained reusable modules and environment-specific variables while enforcing deployments only through CI/CD pipelines to avoid drift.”
+### 🌍 2. Multi-Environment Strategy (VERY IMPORTANT)
 
+#### Common Strategies
 
-🔥 Interview Question
-How do you keep multiple copies of state?
-Answer:
-	Enable object versioning on the remote backend (for example, a GCS bucket or S3 bucket). Every state update creates a new object version, allowing recovery of previous state versions if necessary.
-	
-🔥 Interview Question
-Can you simply replace the state file?
-Answer:
-	No. State and real infrastructure must always be consistent. Before restoring a previous state version, verify the actual infrastructure and review the execution plan to avoid unintended changes.
+| Strategy | Usage |
+| --- | --- |
+| **Separate folders** | Most common |
+| **Workspaces** | Small environments |
+| **Separate repos** | Highly isolated envs |
 
-🔥 Interview Question
-"How would you structure Terraform in Git?"
+**Recommended for enterprise:** Separate environment folders + separate state
 
-"My goal is to maximize code reuse and minimize configuration drift. I would separate reusable infrastructure into modules, keep environment-specific configurations under dedicated environment folders, use separate terraform.tfvars files for environment values, and store all code in Git with code reviews and CI/CD. This ensures consistency across environments while allowing controlled differences."
+> **🔥 Interview Question:** How do you avoid environment drift?
+> **Answer:**
+> * Shared modules
+> * Centralized pipeline
+> * Code reviews
+> * No manual infra changes
+> 
+> 
 
+👉 **Strong Interview Answer:**
 
-🧠 3. Terraform Workspaces
+*"We maintained reusable modules and environment-specific variables while enforcing deployments only through CI/CD pipelines to avoid drift."*
 
-What are workspaces?
-Separate state instances
+> **🔥 Interview Question:** How do you keep multiple copies of state?
+> **Answer:** Enable object versioning on the remote backend (for example, a GCS bucket or S3 bucket). Every state update creates a new object version, allowing recovery of previous state versions if necessary.
 
-Example:
+> **🔥 Interview Question:** Can you simply replace the state file?
+> **Answer:** No. State and real infrastructure must always be consistent. Before restoring a previous state version, verify the actual infrastructure and review the execution plan to avoid unintended changes.
+
+> **🔥 Interview Question:** *"How would you structure Terraform in Git?"*
+> **Answer:** *"My goal is to maximize code reuse and minimize configuration drift. I would separate reusable infrastructure into modules, keep environment-specific configurations under dedicated environment folders, use separate `terraform.tfvars` files for environment values, and store all code in Git with code reviews and CI/CD. This ensures consistency across environments while allowing controlled differences."*
+
+---
+
+### 🧠 3. Terraform Workspaces
+
+#### What are workspaces?
+
+Separate state instances.
+
+**Example:**
+
+```bash
 terraform workspace new dev
 terraform workspace new prod
 
-⚠️ Limitation
+```
+
+#### ⚠️ Limitation
+
 Not ideal for:
-	• large enterprise infra
-	• strong isolation
 
-🔥 Interview Question
-👉 When NOT to use workspaces?
-Answer:
-In highly isolated production environments where separate backends and repositories provide better security and control.
+* Large enterprise infra
+* Strong isolation
 
-💾 4. State File Best Practices (CRITICAL)
+> **🔥 Interview Question:** When NOT to use workspaces?
+> **Answer:** In highly isolated production environments where separate backends and repositories provide better security and control.
+
+---
+
+### 💾 4. State File Best Practices (CRITICAL)
+
 THIS IS EXTREMELY IMPORTANT.
 
-NEVER:
-❌ Store locally
-❌ Commit to Git
+**NEVER:**
 
-BEST PRACTICES:
-✅ Remote backend
-✅ Versioning enabled
-✅ Encryption enabled
-✅ State locking enabled
-✅ Separate state per env
+* ❌ Store locally
+* ❌ Commit to Git
 
-Example:
+**BEST PRACTICES:**
+
+* ✅ Remote backend
+* ✅ Versioning enabled
+* ✅ Encryption enabled
+* ✅ State locking enabled
+* ✅ Separate state per env
+
+**Example:**
+
+```hcl
 backend "gcs" {
   bucket = "terraform-state"
   prefix = "prod"
 }
 
-🔥 Interview Question
-👉 How do you backup state files?
-Answer:
-	• bucket versioning
-	• snapshots
-	• backend redundancy
+```
 
-🔥 Interview Question
-👉 How do you rollback state?
-VERY IMPORTANT.
+> **🔥 Interview Question:** How do you backup state files?
+> **Answer:**
+> * Bucket versioning
+> * Snapshots
+> * Backend redundancy
+> 
+> 
 
-Correct Answer:
-	1. Restore previous backend version
-	2. Validate carefully
-	3. Run plan before apply
+> **🔥 Interview Question:** How do you rollback state? (VERY IMPORTANT)
+> **Correct Answer:**
+> 1. Restore previous backend version
+> 2. Validate carefully
+> 3. Run plan before apply
+> 
+> 
 
-🔥 Interview Question
-👉"Let's say you wanted to roll back and use an old state file. What should be considered?"
+> **🔥 Interview Question:** *"Let's say you wanted to roll back and use an old state file. What should be considered?"*
+> **Answer:** *"The first consideration is ensuring the restored state accurately reflects the current infrastructure. State is only Terraform's record of resources. Before using an older state version, I would verify the infrastructure, restore the state from the backend if appropriate, review the execution plan with `terraform plan`, and only then apply changes. I would also rely on backend versioning and state locking to safely manage state history."*
 
-"The first consideration is ensuring the restored state accurately reflects the current infrastructure. State is only Terraform's record of resources. Before using an older state version, I would verify the infrastructure, restore the state from the backend if appropriate, review the execution plan with terraform plan, and only then apply changes. I would also rely on backend versioning and state locking to safely manage state history."
+#### ⚠️ IMPORTANT POINT
 
-
-⚠️ IMPORTANT POINT
 Never blindly replace state.
-Because:
-	• infra mismatch
-	• accidental deletion
 
-🔗 Your experience mapping
-You can say:
-“We followed controlled infrastructure management practices and validated infrastructure changes carefully before rollout.”
-
-🔥 Interview Question
-
-What happens when you execute - terraform apply?
+* **Because:**
+* Infra mismatch
+* Accidental deletion
 
 
-Terraform performs the following steps:
 
-Read Configuration
-                      ↓
+#### 🔗 Your experience mapping
 
-Initialize Providers
-                         ↓
+👉 **You can say:**
 
-Read Current State
-                        ↓
+*"We followed controlled infrastructure management practices and validated infrastructure changes carefully before rollout."*
 
-Compare Desired vs Current State
-                        ↓
+> **🔥 Interview Question:** What happens when you execute `terraform apply`?
+> **Answer:** Terraform performs the following steps:
+> $$\text{Read Configuration} \longrightarrow \text{Initialize Providers} \longrightarrow \text{Read Current State}$$
+> 
+> 
+> $$\downarrow$$
+> 
+> 
+> $$\text{Compare Desired vs Current State} \longrightarrow \text{Generate Execution Plan} \longrightarrow \text{Create Dependency Graph}$$
+> 
+> 
+> $$\downarrow$$
+> 
+> 
+> $$\text{Apply Changes} \longrightarrow \text{Update State File}$$
+> 
+> 
 
-Generate Execution Plan
-                        ↓
+---
 
-Create Dependency Graph
-                       ↓
+### 🔄 5. Lifecycle Rules (IMPORTANT)
 
-Apply Changes
-                       ↓
-
-Update State File
-
-
-🔄 5. Lifecycle Rules (IMPORTANT)
-
-For some old vm's. You may need to create vm first before deleting, as production servers if we delete it first then automatically you will face downtime.
+For some old VMs, you may need to create the VM first before deleting, as deleting it first will cause downtime on production servers.
 
 Hence use this:
 
-
+```hcl
 lifecycle {
-
-create_before_destroy = true
-
+  create_before_destroy = true
 }
 
-Prevent destroy:
+```
+
+**Prevent destroy:**
+
+```hcl
 lifecycle {
   prevent_destroy = true
 }
 
-Ignore changes:
-ignore_changes = [tags]
+```
 
-Option	Purpose
-create_before_destroy	Reduce downtime
-prevent_destroy	Protect resources
-ignore_changes	Ignore external updates
+**Ignore changes:**
 
-🔥 Interview Question
-👉 When use ignore_changes?
-Answer:
-When external systems modify specific attributes that Terraform should not reconcile.
+```hcl
+lifecycle {
+  ignore_changes = [tags]
+}
 
-"Your teammate manually changed a VM label in GCP, and every terraform apply changes it back. How would you handle this?"
-A good answer is:
-"First, I'd determine whether that manual change should actually be managed by Terraform. If the attribute is intentionally managed outside Terraform, I would consider using lifecycle { ignore_changes = [...] }. Otherwise, I'd update the Terraform code so that Git remains the source of truth and avoid future manual changes."
+```
 
+| Option | Purpose |
+| --- | --- |
+| **`create_before_destroy`** | Reduce downtime |
+| **`prevent_destroy`** | Protect resources |
+| **`ignore_changes`** | Ignore external updates |
 
-🔥 Interview Question
-Suppose Production VM needs replacement.
-Would you terraform apply immediately?
+> **🔥 Interview Question:** When use `ignore_changes`?
+> **Answer:** When external systems modify specific attributes that Terraform should not reconcile.
 
-No.
-Senior engineer process
-	1. Run terraform plan
-	2. Verify affected resources 
-	3. Check downtime impact 
-	4. Verify lifecycle rules 
-	5. Take backup if needed 
-	6. Apply during maintenance window if required
+> **🔥 Interview Question:** *"Your teammate manually changed a VM label in GCP, and every `terraform apply` changes it back. How would you handle this?"*
+> **A good answer is:** *"First, I'd determine whether that manual change should actually be managed by Terraform. If the attribute is intentionally managed outside Terraform, I would consider using `lifecycle { ignore_changes = [...] }`. Otherwise, I'd update the Terraform code so that Git remains the source of truth and avoid future manual changes."*
 
+> **🔥 Interview Question:** Suppose Production VM needs replacement. Would you `terraform apply` immediately?
+> **Answer:** No.
+> **Senior engineer process:**
+> 1. Run `terraform plan`
+> 2. Verify affected resources
+> 3. Check downtime impact
+> 4. Verify lifecycle rules
+> 5. Take backup if needed
+> 6. Apply during maintenance window if required
+> 
+> 
 
+---
 
-🔁 6. Dynamic Blocks (ADVANCED)
+### 🔁 6. Dynamic Blocks (ADVANCED)
 
-Problem:
-Repeated nested blocks
+#### Problem:
 
-Example:
+Repeated nested blocks.
+
+**Example:**
+
+```hcl
 dynamic "ingress" {
   for_each = var.ports
 }
 
-🔥 Interview Question
-👉 Why dynamic blocks?
-Answer:
-To reduce duplication and generate nested configurations dynamically.
+```
 
-🧠 7. Dependency Management
+> **🔥 Interview Question:** Why dynamic blocks?
+> **Answer:** To reduce duplication and generate nested configurations dynamically.
 
-Terraform auto detects:
-resource references
+---
 
-Manual dependency:
-depends_on = []
+### 🧠 7. Dependency Management
 
-🔥 Interview Question
-👉 When use depends_on?
-Answer:
-When implicit dependency is not enough.
+* **Terraform auto detects:** Resource references
+* **Manual dependency:** `depends_on = []`
 
-⚙️ 8. CI/CD Integration (VERY IMPORTANT)
+> **🔥 Interview Question:** When use `depends_on`?
+> **Answer:** When implicit dependency is not enough.
+
+---
+
+### ⚙️ 8. CI/CD Integration (VERY IMPORTANT)
+
 This maps directly to your project.
 
-Standard Flow
-Git Push
-   ↓
-Terraform fmt
-   ↓
-Terraform validate
-   ↓
-Terraform plan
-   ↓
-Approval
-   ↓
-Terraform apply
+#### Standard Flow
 
-🔥 Interview Question
-👉 How do you automate Terraform?
-Answer:
-	• Git pipelines
-	• automated plan
-	• approval gates
-	• remote backend
+$$\text{Git Push} \longrightarrow \text{Terraform fmt} \longrightarrow \text{Terraform validate} \longrightarrow \text{Terraform plan} \longrightarrow \text{Approval} \longrightarrow \text{Terraform apply}$$
 
-🔗 Your experience mapping (VERY STRONG)
+> **🔥 Interview Question:** How do you automate Terraform?
+> **Answer:**
+> * Git pipelines
+> * Automated plan
+> * Approval gates
+> * Remote backend
+> 
+> 
+
+#### 🔗 Your experience mapping (VERY STRONG)
+
 You worked on:
-	• staging pipelines
-	• automated testing
-👉 GOLD ANSWER:
-“We integrated infrastructure automation with CI/CD pipelines to validate and provision environments consistently before running integration tests.”
 
-🧪 9. Real Interview Scenarios (VERY IMPORTANT)
+* Staging pipelines
+* Automated testing
 
-🔥 Scenario 1
-👉 Someone manually changed infra
-What happens?
-	• drift
-Fix:
-terraform plan
+👉 **GOLD ANSWER:**
 
-🔥 Scenario 2
-👉 State corrupted
-Answer:
-	• restore backup
-	• validate state
-	• run plan
+*"We integrated infrastructure automation with CI/CD pipelines to validate and provision environments consistently before running integration tests."*
 
-🔥 Scenario 3
-👉 Multiple teams using same state
-Answer:
-	• remote backend
-	• locking
-	• RBAC
+---
 
-🔥 Scenario 4
-👉 Need to create multiple VMs
+### 🧪 9. Real Interview Scenarios (VERY IMPORTANT)
 
-Using:
-for_each
-better than:
-count
-if resources unique
+> **🔥 Scenario 1:** Someone manually changed infra. What happens?
+> **Answer:** Drift.
+> **Fix:** `terraform plan`
 
-🔥 Scenario 5
-👉 Rollback failed infra change
-Answer:
-	1. Restore previous code
-	2. Validate plan
-	3. Restore state only if required
+> **🔥 Scenario 2:** State corrupted.
+> **Answer:**
+> * Restore backup
+> * Validate state
+> * Run plan
+> 
+> 
 
-🎯 10. Enterprise Best Practices (VERY IMPORTANT)
+> **🔥 Scenario 3:** Multiple teams using same state.
+> **Answer:**
+> * Remote backend
+> * Locking
+> * RBAC
+> 
+> 
 
-Recommended:
-✅ Reusable modules
-✅ Separate state per env
-✅ Remote backend
-✅ CI/CD enforcement
-✅ No manual changes
-✅ Version pinning
-✅ Least privilege access
+> **🔥 Scenario 4:** Need to create multiple VMs.
+> **Answer:** Using `for_each` is better than `count` if resources are unique.
 
-🔥 Interview Question
-👉 How do you optimize Terraform code?
-Answer:
-	• modularization
-	• reduce duplication
-	• dynamic blocks
-	• reusable variables
+> **🔥 Scenario 5:** Rollback failed infra change.
+> **Answer:**
+> 1. Restore previous code
+> 2. Validate plan
+> 3. Restore state only if required
+> 
+> 
 
-🧠 FINAL SENIOR-LEVEL ANSWER
-👉 “Explain how you structure Terraform in enterprise projects.”
-“I prefer a modular Terraform architecture where reusable modules are separated from environment-specific configurations. Each environment maintains isolated state files through remote backends with locking and versioning enabled. CI/CD pipelines handle validation, planning, and controlled deployments to prevent drift and ensure consistency across environments.”
+---
 
+### 🎯 10. Enterprise Best Practices (VERY IMPORTANT)
 
-🔥 Interview Question
-👉 Does Terraform execute main.tf first?
-No.
-Terraform loads all .tf files in the directory and builds a dependency graph. The execution order is based on resource dependencies, not file names.
+**Recommended:**
+
+* ✅ Reusable modules
+* ✅ Separate state per env
+* ✅ Remote backend
+* ✅ CI/CD enforcement
+* ✅ No manual changes
+* ✅ Version pinning
+* ✅ Least privilege access
+
+> **🔥 Interview Question:** How do you optimize Terraform code?
+> **Answer:**
+> * Modularization
+> * Reduce duplication
+> * Dynamic blocks
+> * Reusable variables
+> 
+> 
+
+---
+
+### 🧠 FINAL SENIOR-LEVEL ANSWER
+
+> **🔥 Interview Question:** *"Explain how you structure Terraform in enterprise projects."*
+> **Answer:** *"I prefer a modular Terraform architecture where reusable modules are separated from environment-specific configurations. Each environment maintains isolated state files through remote backends with locking and versioning enabled. CI/CD pipelines handle validation, planning, and controlled deployments to prevent drift and ensure consistency across environments."*
+
+> **🔥 Interview Question:** Does Terraform execute `main.tf` first?
+> **Answer:** No. Terraform loads all `.tf` files in the directory and builds a dependency graph. The execution order is based on resource dependencies, not file names.
 
 
 
