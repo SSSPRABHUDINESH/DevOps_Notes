@@ -159,9 +159,11 @@ Every running program in Linux is represented by a unique **Process ID (PID)**.
 | Command | Description | Common Syntax & Example |
 | --- | --- | --- |
 | **`ps`** 📋 | Snapshot of active processes | `ps aux` *(view all running processes with user/CPU/RAM details)* |
-| **`top`** 📊 | Real-time dynamic resource monitor | `top` *(built-in command-line dashboard)* |
+| **`top`** 📊 | Real-time dynamic resource monitor | `top` *(Uptime & Load, Tasks, %CPU, %Mem)* |
 | **`htop`** 🖥️ | Enhanced interactive process viewer | `htop` *(color-coded, supports scrolling and mouse clicks)* |
 | **`pgrep`** 🔍 | Find PID by process name | `pgrep -u appuser nginx` *(find Nginx PIDs for user)* |
+
+**ps aux vs top**: ps aux provides a static snapshot of running processes at the exact moment you run the command, while top provides a dynamic, real-time view that continuously updates system statistics and resource utilization
 
 ---
 
