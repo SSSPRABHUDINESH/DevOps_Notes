@@ -912,6 +912,13 @@ These are the essential Bash scripting symbols and their functions for your refe
 14. **Process line-by-line with custom delimiter:** (11:13) Set the `IFS` (Internal Field Separator) variable to the delimiter (e.g., `:`) before using a `read` loop.
 15. **Shebang purpose:** (11:52) The shebang (`#!/bin/bash`) tells the operating system which interpreter to use to execute the script.
 
+---
 
+# Comparisons
 
-```
+| Language / Tool | Keyword / Mechanism | How It Works | Common Use Case |
+| --- | --- | --- | --- |
+| **Python, Java, C#** | `finally` | Attached to a `try...catch` block. Executes regardless of whether an error was thrown or not. | Closing database connections, closing files, releasing locks. |
+| **Bash** | `trap [command] EXIT` | Intercepts system termination signals. Executes when the script finishes, fails, or is cancelled (Ctrl+C). | Removing temporary files, releasing PID locks (`rm -f /tmp/lock`). |
+| **Ansible** | `always` | Attached to a `block...rescue` setup. Runs unconditionally after the tasks in the block complete or fail. | Restarting a service, sending an alert, rolling back a partial update. |
+| **Terraform** | `when = destroy` | Used inside a `provisioner` block. Executes specifically when Terraform is tearing down that resource. | Running a cleanup script, draining nodes, deleting external logs before the VM dies. |
