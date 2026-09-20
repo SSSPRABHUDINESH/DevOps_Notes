@@ -1206,8 +1206,18 @@ CPU issues generally fall into two categories: **high utilization** (heavy compu
 
 ### 🔹 Key Metrics & Load Average
 
-* 📈 **Load Average:** The average number of processes in a *runnable* or *uninterruptible sleep* state over 1, 5, and 15 minutes.
+* 📈 **Load Average:**  load averages measure the system's demand for resources. 
 * 📏 **Rule of Thumb:** A load average equal to your total number of CPU cores means $100\%$ optimal utilization. Anything significantly higher means processes are queuing up and waiting.
+
+```bash
+$ uptime
+11:30:22 up 5 days, 12:34,  2 users,  load average: 0.45, 0.85, 1.50
+```
+
+The three load average figures represent moving averages over different intervals of time:
+1. 0.45 (First number): The average system load over the past 1 minute.
+2. 0.85 (Second number): The average system load over the past 5 minutes.
+3. 1.50 (Third number): The average system load over the past 15 minutes
 
 ```
 Total Cores = 4
