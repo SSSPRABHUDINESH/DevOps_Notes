@@ -845,7 +845,9 @@ Compact reduces latency by keeping VMs close; spread improves failure isolation.
 ## 27. OS Login
 
 ### Definition
-OS Login uses IAM identities to manage SSH access to Linux VMs.
+OS Login is a Google Cloud feature that ties SSH access for Linux virtual machines directly to Google Cloud Identity and Access Management (IAM) accounts, replacing the need to manually manage traditional SSH keys.
+
+- OS Login uses IAM identities to manage SSH access to Linux VMs.
 
 ### OS Login prerequisites
 - OS Login must be enabled at project or instance level.
@@ -922,7 +924,29 @@ User complaint
 
 ### Important Points
 Troubleshoot layer by layer and avoid random restarts. Find the root cause first.
+---
+##Interview Questions:
 
+Here are the last two questions and answers formatted for your notes:
+
+**Q: Can a persistent disk be connected to multiple VMs? If yes, can I provide read/write access to all, or only read access?**
+**A:** Yes, a persistent disk can be connected to multiple VMs, but you cannot provide read/write access to all of them simultaneously.
+
+* **Read-Only (`ReadOnlyMany`):** You can attach one persistent disk to multiple VMs at the same time, but all of them will only have READ access.
+* **Read/Write (`ReadWriteOnce`):** If you need write access, only ONE VM can write to the disk at a time.
+
+**Q: Is Local SSD storage taken from the physical host where the GCP VM is lying on?**
+**A:** Yes, a Local SSD is physical SSD storage that is directly attached to the physical server (the host) where your VM is running.
+
+* Because it is tied to that specific physical hardware, it is **ephemeral** (temporary). If the physical host is replaced or the VM is stopped/terminated, the data on the Local SSD is lost.
+* It provides extremely fast performance and low latency, making it ideal for temporary data like caches and scratch space, rather than persistent application data.
+
+**Q: Can local ssd be attached to multiple VM's**
+**A:** No, a [Local SSD](https://github.com/SSSPRABHUDINESH/DevOps_Notes/blob/main/gcp/2%20Compute-notes.md?utm_source=gemini#24-local-ssd) **cannot** be attached to multiple VMs.
+
+Unlike [Persistent Disks](https://github.com/SSSPRABHUDINESH/DevOps_Notes/blob/main/gcp/2%20Compute-notes.md?utm_source=gemini#17-persistent-disk) (which are network-attached), a Local SSD is physical storage directly attached to the specific host server running your VM. Because of this architecture, it is dedicated solely to that single VM and cannot be shared or connected across multiple virtual machines.
+
+---
 ## Quick Revision Map
 
 ```text
