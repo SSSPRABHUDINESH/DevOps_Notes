@@ -3,6 +3,7 @@ Here is exactly how to design, secure, and structure it using modern GCP compone
 ------------------------------
 ## 1. Architectural Blueprint (The 3 Tiers)
 
+```
                         [ INTERNET / USERS ]
                                  │
                                  ▼
@@ -58,6 +59,8 @@ VPC NETWORK                      ▼
 │  │  - Synchronous Standby Replica DB Instance (Zone B)       │  │
 │  └───────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
+
+```
 
 ------------------------------
 ## 2. Breakdown of the Layers & GCP Components## Tier 1: Presentation (Web) Layer
