@@ -15,7 +15,9 @@ Here is exactly how to do it using the command line.
 ## 1. Check your deployment history
 First, look at the available revisions to find your version 1. Run this command (replace your-deployment-name with the actual name of your deployment):
 
+```yaml
 kubectl rollout history deployment/your-deployment-name
+```
 
 You will see a list of revision numbers.
 
@@ -24,14 +26,16 @@ You will see a list of revision numbers.
 
 ## 2. Roll back to Version 1
 To instantly revert to your first version, run the rollout command with the specific revision number:
-
+```yaml
 kubectl rollout undo deployment/your-deployment-name --to-revision=1
+```
 
 (Note: If you just want to roll back to the immediate previous version, you can simply run kubectl rollout undo deployment/your-deployment-name without the revision flag).
 ## 3. Track the status
 You can watch the rollback happen in real-time to ensure the old pods come back up successfully:
-
+```yaml
 kubectl rollout status deployment/your-deployment-name
+```
 
 ------------------------------
 ## What happens behind the scenes?
@@ -41,9 +45,4 @@ kubectl rollout status deployment/your-deployment-name
 
 Important Best Practice: While the cluster rollback fixes the immediate production failure, remember to update your local manifest files or your GitHub repository afterward so your code history matches what is actually running in production!
 If you run into any issues during the rollback, let me know:
-
-* What error messages are you seeing (if any)?
-* Do you use a CI/CD tool (like ArgoCD or Jenkins) to deploy, or are you doing it manually via kubectl?
-
-I can help you troubleshoot the specific failure or clean up your Git history!
 
