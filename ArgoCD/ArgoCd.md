@@ -12,6 +12,9 @@ Before GitOps, managing Kubernetes infrastructure (like node configurations or r
 
 GitOps solves this by requiring all infrastructure and application states to be defined declaratively in Git repositories. By using a Pull Request workflow, changes are reviewed and approved before being applied to the cluster.
 
+<img width="819" height="301" alt="image" src="https://github.com/user-attachments/assets/f0d62644-7f87-4c8d-84b0-be7eb2d172f4" />
+
+
 ---
 
 #### **2. Core Principles of GitOps**
@@ -62,6 +65,10 @@ GitOps is a practice that uses version control as the single source of truth for
 * **Reconciliation Logic:** These tools function as Kubernetes controllers that constantly observe and reconcile the difference between the Git repository and the cluster environment.
 
 ### High-Level Architecture of Argo CD
+
+<img width="1724" height="912" alt="image" src="https://github.com/user-attachments/assets/cc55b626-4484-4d07-86b6-2208a093fbd0" />
+
+
 Argo CD operates using several microservices, each fulfilling a specific role to ensure a robust system:
 
 * **Repo Server:** Acts as the bridge to your version control system. It retrieves and manages the manifest files from the Git repository.
