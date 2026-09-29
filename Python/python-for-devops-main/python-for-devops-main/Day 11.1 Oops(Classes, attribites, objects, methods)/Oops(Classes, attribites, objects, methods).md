@@ -134,47 +134,96 @@ Grouping related features into **resource attributes** creates clean namespaces:
 
 ### Simulated SDK Source Code
 
-```python
-# --- SDK INTERNAL CODE ---
+Here is a simplified Python source code example showing how a SDK library like `openai` is structured under the hood.
 
-class ResponsesManager:
-    """Helper class dedicated to response operations."""
+---
+
+### Simplified Source Code Structure
+
+#### 1. The Helper Resource Class (`responses.py`)
+
+This class defines the manager object that holds specific methods like `create()`.
+
+```python
+# openai/resources/responses.py
+
+class Responses:
     def __init__(self, client):
-        self._client = client  # Reference back to parent client for settings
+        # Stores a reference back to the main client (for API keys, config, etc.)
+        self._client = client
 
     def create(self, model: str, input: str):
-        # Uses the API key stored in the attached parent client
+        """Method to trigger the API network call for a response."""
         api_key = self._client.api_key
-        print(f"Sending API request with Key: '{api_key}' | Model: '{model}' | Input: '{input}'")
-        return {"status": "success", "output": "Model output generated."}
+        print(f"Sending API request with key '{api_key}'...")
+        print(f"Model: {model} | Input: '{input}'")
+        
+        # Simulating returning a response object from the API
+        return {"output_text": "Here is the model output."}
 
+```
+
+---
+
+#### 2. The Main Client Class (`client.py`)
+
+When you initialize `OpenAI()`, its `__init__` constructor creates instance variables (attributes) and assigns new helper objects to them.
+
+```python
+# openai/client.py
+from openai.resources.responses import Responses
 
 class OpenAI:
-    """Main client class imported by users."""
-    def __init__(self, api_key: str = "sk-default-key"):
+    def __init__(self, api_key: str = "default_sk_key"):
         self.api_key = api_key
+
+        # --- ATTRIBUTES (Holding Helper Objects) ---
+        # Here, the attribute 'responses' is initialized as an object instance of Responses
+        self.responses = Responses(client=self)
         
-        # COMPOSITION: Storing resource manager instance in an attribute
-        self.responses = ResponsesManager(client=self)
+        # Other resource attributes would be set up the same way:
+        # self.files = Files(client=self)
+        # self.models = Models(client=self)
 
+```
 
-# --- USER APP CODE ---
+---
 
+#### 3. Package Entry Point (`__init__.py`)
+
+This exposes the `OpenAI` class directly at the top level of the `openai` package.
+
+```python
+# openai/__init__.py
+from openai.client import OpenAI
+
+__all__ = ["OpenAI"]
+
+```
+
+---
+
+### How Everything Connects in Your Code
+
+When you write:
+
+```python
 from openai import OpenAI
 
-# 1. Import OpenAI class from openai package
-# 2. Instantiate OpenAI class -> creates 'client' object
-client = OpenAI(api_key="sk-123456789")
+# 1. Instantiates OpenAI class -> executes OpenAI.__init__()
+# 2. Inside __init__, self.responses is assigned an instance of Responses
+client = OpenAI()
 
-# 3. 'client' is the object instance of OpenAI class
-# 4. 'client.responses' is an attribute holding the ResponsesManager instance
-# 5. '.create(...)' is a method called on that ResponsesManager instance
+# 3. Access 'responses' attribute -> retrieves the Responses object instance
+# 4. Calls '.create()' method on that object instance
 response = client.responses.create(
     model="gpt-6-astra",
     input="Hello world"
 )
 
 ```
+
+**Key Takeaway:** The attribute (`client.responses`) points to a **class instance** (`Responses`), and the method (`.create()`) is a standard function inside that class.
 
 ---
 
