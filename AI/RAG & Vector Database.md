@@ -50,8 +50,6 @@ LLMs and embedding models cannot effectively process massive documents as a sing
 ---
 # Vector Databases:
 
-# Complete Guide to Vector Databases
-
 ### The Problem: Traditional vs. AI-Driven Search
 Traditional databases (e.g., MySQL, PostgreSQL) are built for **exact or partial text matching**. They excel when a user knows the specific keywords they are looking for, but they fail to understand the **context or intent** behind a query. 
 
