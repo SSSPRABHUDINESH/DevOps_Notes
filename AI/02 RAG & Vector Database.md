@@ -30,6 +30,9 @@ Traditional databases search for exact keyword matches, which fails if the user 
 Instead of keyword matching, RAG uses **cosine similarity** to compare the vector of the user's question against the vectors of the stored document chunks. 
 * A similarity score between 0.3 and 0.9 typically indicates a high semantic match, ensuring the most relevant information is retrieved.
 
+<img width="721" height="454" alt="image" src="https://github.com/user-attachments/assets/77ab36f9-7b71-4fc4-b707-284e13a7820a" />
+
+
 #### 3. Chunking
 LLMs and embedding models cannot effectively process massive documents as a single input. **Chunking** breaks large documents into smaller, manageable pieces (based on token counts). This ensures the embedding model can create meaningful vectors for specific sections of text.
 
