@@ -34,19 +34,19 @@ Before answering user requests, the system builds its knowledge base (Retrieval-
 
 
 4. **Prompt Building & LLM Routing (8):**
-* The **Prompt Engine** uses **LangChain** abstractions to combine the user's initial prompt with the retrieved context from Milvus.
+      * The **Prompt Engine** uses **LangChain** abstractions to combine the user's initial prompt with the retrieved context from Milvus.
 
 
-* It routes the combined prompt to the chosen LLM backend along with platform-specific parameters (like model name).
+      * It routes the combined prompt to the chosen LLM backend along with platform-specific parameters (like model name).
 
 
 
 
 5. **LLM Provider Options (Top Layer):**
-* **EPAM DIAL:** Enterprise AI API gateway routing to Vertex AI, Azure OpenAI, or AWS Bedrock.
+      * **EPAM DIAL:** Enterprise AI API gateway routing to Vertex AI, Azure OpenAI, or AWS Bedrock.
 
 
-* **Direct Cloud AI Services:** Direct connections to **Google Cloud Vertex AI**, **Microsoft Azure OpenAI**, or **Amazon Bedrock**.
+      * **Direct Cloud AI Services:** Direct connections to **Google Cloud Vertex AI**, **Microsoft Azure OpenAI**, or **Amazon Bedrock**.
 
 
 
