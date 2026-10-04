@@ -1,6 +1,8 @@
 ## LlamaIndex:
 
-**LamaIndex** is a simple, flexible data framework for connecting custom data sources to large language models.
+**LamaIndex** is a simple, flexible data framework for connecting **custom data sources** to **large language models**.
+
+* **Custom data sources** - PDFs, databases, Notion pages, or Slack threads
 
 * **LlamaIndex** is another framework in the Generative AI ecosystem, but unlike LangChain and LangGraph (which focus on workflow execution and agent control), **LlamaIndex is specialized in Data Retrieval and Management**.
 
