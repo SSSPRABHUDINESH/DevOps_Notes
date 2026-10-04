@@ -18,8 +18,8 @@
 To understand how LlamaIndex, LangChain, and LangGraph compare, consider building a **smart assistant**:
 
 * **LlamaIndex is the Librarian:** It indexes, structures, chunks, and retrieves your internal or domain-specific documents so the AI can easily search and read relevant context.
-* **LangChain is the Pipeline:** It chains the steps together (e.g., *Query $\rightarrow$ Ask Librarian $\rightarrow$ Send retrieved text to LLM $\rightarrow$ Format Output*).
-* **LangGraph is the Decision Logic:** It decides what to do if the Librarian finds no relevant documents (e.g., *Loop back $\rightarrow$ Rewrite search query $\rightarrow$ Try searching again*).
+* **LangChain is the Pipeline:** It chains the steps together (e.g., *Query -> Ask Librarian -> Send retrieved text to LLM -> Format Output*).
+* **LangGraph is the Decision Logic:** It decides what to do if the Librarian finds no relevant documents (e.g., *Loop back -> Rewrite search query -> Try searching again*).
 
 ---
 
