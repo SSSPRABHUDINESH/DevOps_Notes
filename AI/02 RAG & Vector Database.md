@@ -87,6 +87,9 @@ AI applications require **meaning-based matching**. If a user asks a question ab
 *   **Mathematical Space:** These numbers are not random; they are mapped in a multi-dimensional space. Data with similar meanings are positioned closer together in this mathematical space.
 *   **Semantic Relationships:** Because of this structure, models can perform operations—such as subtracting "man" from "king" and adding "woman" to arrive near "queen"—proving that the model understands complex dimensions of meaning.
 
+<img width="721" height="454" alt="image" src="https://github.com/user-attachments/assets/77ab36f9-7b71-4fc4-b707-284e13a7820a" />
+
+
 ---
 ### Architecture Diagram of Vector Database:
 
