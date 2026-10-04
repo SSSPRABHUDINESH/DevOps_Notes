@@ -1,8 +1,10 @@
 ## LlamaIndex:
 
-**LlamaIndex** is another framework in the Generative AI ecosystem, but unlike LangChain and LangGraph (which focus on workflow execution and agent control), **LlamaIndex is specialized in Data Retrieval and Management**.
+**LamaIndex** is a simple, flexible data framework for connecting custom data sources to large language models.
 
-It is designed to connect your custom data sources—such as PDFs, databases, Notion pages, or Slack threads—to Large Language Models for **Retrieval-Augmented Generation (RAG)**.
+* **LlamaIndex** is another framework in the Generative AI ecosystem, but unlike LangChain and LangGraph (which focus on workflow execution and agent control), **LlamaIndex is specialized in Data Retrieval and Management**.
+
+* It is designed to connect your custom data sources—such as PDFs, databases, Notion pages, or Slack threads—to Large Language Models for **Retrieval-Augmented Generation (RAG)**.
 
 <img width="967" height="683" alt="image" src="https://github.com/user-attachments/assets/d529e57e-f0f5-43b5-a5a6-90d30ed79f78" />
 
