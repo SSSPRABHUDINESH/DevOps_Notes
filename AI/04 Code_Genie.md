@@ -103,48 +103,48 @@ Looking at the bottom-left corner of the diagram:
 Here is how the entire architecture processes user queries alongside the log analytics job:
 
 1. **Log Collection (Offline / Parallel Track):**
-* Raw **User's Application Logs** flow into the **Log Analytics Job**.
-* **Matplotlib** processes these logs to summarize metrics, error rates, or usage patterns into visual reports or structured analytical insights.
+    * Raw **User's Application Logs** flow into the **Log Analytics Job**.
+    * **Matplotlib** processes these logs to summarize metrics, error rates, or usage patterns into visual reports or structured analytical insights.
 
 
 2. **User Request & Trigger (Steps 1–3):**
-* The **Actor** provides input via the terminal interface.
+    * The **Actor** provides input via the terminal interface.
 
 
-* The request triggers a **Workflow** managed by **LlamaIndex**.
+    * The request triggers a **Workflow** managed by **LlamaIndex**.
 
 
-* The workflow calls **Llama Hub** connectors to fetch local project directories or code from **GitHub**.
+    * The workflow calls **Llama Hub** connectors to fetch local project directories or code from **GitHub**.
 
 
 
 
 3. **Indexing & Vector Search (Steps 4–7):**
-* **Llama Hub** indexes the codebase/documents and stores vector embeddings in **Milvus** (running in Docker).
+    * **Llama Hub** indexes the codebase/documents and stores vector embeddings in **Milvus** (running in Docker).
 
 
-* When a query arrives, **LlamaIndex Workflows** sends a **Context Query** (similarity search) to **Milvus**.
+    * When a query arrives, **LlamaIndex Workflows** sends a **Context Query** (similarity search) to **Milvus**.
 
 
-* **Milvus** returns the relevant matching context back to **LlamaIndex**.
+    * **Milvus** returns the relevant matching context back to **LlamaIndex**.
 
 
 
 
 4. **Prompt Augmentation & LLM Call (Steps 8–9):**
-* **LlamaIndex** passes the retrieved context to the **Prompt Engine** (built using **LangChain**).
+    * **LlamaIndex** passes the retrieved context to the **Prompt Engine** (built using **LangChain**).
 
 
-* The **Prompt Engine** constructs the final prompt and issues an API call to external cloud AI platforms like **Google Cloud Vertex AI**, **Azure OpenAI**, **AWS Bedrock**, or **EPAM DIAL**.
+    * The **Prompt Engine** constructs the final prompt and issues an API call to external cloud AI platforms like **Google Cloud Vertex AI**, **Azure OpenAI**, **AWS Bedrock**, or **EPAM DIAL**.
 
 
-* The LLM generates a response and sends it back through the Prompt Engine to the workflow engine.
+    * The LLM generates a response and sends it back through the Prompt Engine to the workflow engine.
 
 
 
 
 5. **Final Output (Step 10):**
-* **LlamaIndex** returns the finalized, context-grounded **LLM Response** back to the **Actor**.
+    * **LlamaIndex** returns the finalized, context-grounded **LLM Response** back to the **Actor**.
 
 
 
