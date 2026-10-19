@@ -1055,6 +1055,19 @@ Domain Name System (DNS) translates human-friendly hostnames (e.g., `google.com`
 * **`/etc/resolv.conf`** ⚙️: Configures nameserver IP addresses used for system DNS lookups.
 * **`/etc/nsswitch.conf`** 🔀: Defines the lookup order for name resolution (e.g., `hosts: files dns`).
 
+---
+
+### Comparison Table
+
+| Feature | `/etc/hosts` | `/etc/resolv.conf` |
+| --- | --- | --- |
+| **What is it?** | A **local static text file** mapping hostnames to IP addresses. | A **configuration file** pointing to upstream **DNS servers**. |
+| **Lookup Order** | Checked **first** before making any external network or DNS queries. | Checked **after** local files (`/etc/hosts`) fail to find a match. |
+| **Managed By** | Maintained manually by you (or local scripts). | Usually generated automatically by network managers (like `NetworkManager`). |
+| **Primary Use Case** | Local development overrides, blocking distracting websites, or defining custom internal network names. | Pointing your machine to public or private DNS resolvers (e.g., Cloudflare `1.1.1.1` or Google `8.8.8.8`). |
+
+---
+
 ### Sample contents inside DNS files:
 
 ## 1. Local Domain Mapping (/etc/hosts)
