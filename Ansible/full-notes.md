@@ -931,7 +931,15 @@ gpg --export --armor "your-email@example.com" > my_pubkey.gpg
 
 ```
 
+---
+#### Why .asc?
+1. Separation of Content and Proof (Detached Signature)
+When you sign a large file like an Ansible collection tarball (.tar.gz), you usually don't want to modify or wrap the original file inside a binary container format.
 
+By creating a detached signature, your original .tar.gz file remains 100% pristine and unmodified.
+
+The signature is saved into a separate text file ending in .asc.
+---
 
 ---
 
