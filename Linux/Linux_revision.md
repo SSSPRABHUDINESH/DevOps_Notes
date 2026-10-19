@@ -604,31 +604,53 @@ Every file in a Linux filesystem is represented internally by an **Inode** (Inde
 
 ### 🔹 Hard Links vs. Soft (Symbolic) Links
 
-A `hard link` is a direct pointer to the physical data on the disk (sharing the same inode), while a soft link (or symbolic link) is a shortcut that points to another file's path or name 
+# Understanding Linux Links: Inodes, Soft Links, and Hard Links
 
-### What if I delete the file, which I created a hardlink?
+In the Linux file system, every file is associated with an **inode** (index node). Think of an inode as a database record for a file. 
 
-- `Yes`, the data still exists.
+### The Role of the Inode
+An inode stores critical metadata about a file, similar to a personal ID or passport, but it **does not contain the file name or the actual file content.**
 
-- The data on the disk is only deleted when all hard links pointing to it are removed.
+Typical information stored in an inode includes:
+* **Inode number:** A unique identifier for the file.
+* **File size:** Measured in bytes.
+* **Ownership:** Information about who owns the file.
+* **Permissions:** Access rights for the file.
+* **File type:** What kind of file it is.
+* **Number of links:** A count of how many links point to this inode.
 
-### How Linux Handles Deletion
+---
 
-- Files are just labels: In Linux, a "filename" is just a hard link pointing to an inode (the actual data blocks).
-- **The Link Counter:** Every inode keeps track of how many filenames point to it.
+### Soft Links (Symbolic Links)
+Soft links are effectively **shortcuts**—very similar to those found in the *Windows* operating system. They act as a pointer to another file.
 
-    - When you create a file, the counter is 1.
-
-    - When you create a hard link, the counter becomes 2.
+<img width="549" height="285" alt="image" src="https://github.com/user-attachments/assets/ef33ced2-4f61-48ac-a6b9-c2cd0c25078e" />
 
 
-| Characteristic | 🔗 Hard Link | 🔀 Soft Link (Symlink) |
-| --- | --- | --- |
-| **Target** | Points directly to the **Inode number** | Points to the **File path/name** |
-| **Creation** | `ln file.txt hardlink.txt` | `ln -s file.txt symlink.txt` |
-| **Across Filesystems?** | ❌ No (restricted to same filesystem) | ✅ Yes |
-| **Original Deleted?** | ✅ Content stays accessible via hard link | ❌ Link breaks (dangling symlink) |
-| **Directories?** | ❌ Not permitted for users | ✅ Supported |
+* **Key Characteristics:**
+    * The soft link is a separate file with its own unique inode number, which differs from the original file.
+    * The file size of a soft link is generally smaller than the original file.
+* **Behavior:** If you delete the original file, the soft link becomes broken and useless, just like a shortcut in *Windows* that no longer points to a valid destination.
+
+<img width="482" height="242" alt="image" src="https://github.com/user-attachments/assets/9f0db6fe-3ff1-4904-ab5b-013e065f0511" />
+
+
+---
+
+### Hard Links
+Hard links are a different way of creating a reference to a file. A hard link is essentially an alternative name for the exact same file.
+
+<img width="592" height="300" alt="image" src="https://github.com/user-attachments/assets/5c742504-c9b0-4071-a7b2-821fba5b1ae3" />
+
+
+* **Key Characteristics:**
+    * A hard link shares the **exact same inode number** as the original file.
+    * It has the **exact same file size** as the original file.
+    * Because they share the same inode, you cannot distinguish between an "original" file and a hard link; they are functionally identical.
+* **Behavior:** If you delete the original file, the hard link remains perfectly intact and accessible. Because the hard link points directly to the inode, the data remains available as long as at least one hard link exists.
+
+<img width="411" height="240" alt="image" src="https://github.com/user-attachments/assets/72d28bcc-a8f0-453d-bb45-e5f79e0cf649" />
+
 
 ### 🔹 Inode Exhaustion (`df -i`)
 
