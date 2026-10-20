@@ -1,7 +1,47 @@
 To structure a highly available, secure 3-Tier Architecture from scratch on GCP (Google Cloud Platform), you map the traditional layers (Presentation, Application, and Data) into isolated Google Cloud networking zones.
+
 Here is exactly how to design, secure, and structure it using modern GCP components.
 ------------------------------
 ## 1. Architectural Blueprint (The 3 Tiers)
+
+<img width="435" height="411" alt="image" src="https://github.com/user-attachments/assets/39e06f4c-4117-47e7-bbd1-bfb980ee9e99" />
+
+
+### Execution flow:
+
+Here is the step-by-step execution flow of a request in a **3-Tier Architecture**, based on the video:
+
+1. **User Action / Request** 
+    * The user enters a URL (e.g., `facebook.com`) or makes a request on an app.
+
+
+2. **Load Balancer** 
+    * The request first hits the **Load Balancer**, which acts like a captain directing traffic and forwards the request to an available Web Server.
+
+
+3. **Web Server (Web Tier)** 
+    * The **Web Server** receives the incoming request and passes it along to the Application Server.
+
+
+4. **Application Server (Application Tier)** 
+    * The **Application Server** processes the request logic and interacts with the Database to fetch or manipulate the necessary data.
+
+
+5. **Database (Database Tier)** 
+    * The **Database** stores and returns the raw data requested back to the Application Server.
+
+
+6. **Data Processing & Formatting (Web Tier)** 
+    * The data goes back to the **Web Server**, where styling, decorations (like CSS/tabular formats), and final preparation are applied.
+
+
+7. **Response to User** 
+    * The fully formatted page/content is rendered and displayed on the user's screen.
+
+
+
+---
+
 
 ```
                         [ INTERNET / USERS ]
